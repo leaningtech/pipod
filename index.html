@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PiPod</title>
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div class="bar">
+      <p id="status" class="status">Starting...</p>
+      <ul id="portals" class="portals"></ul>
+    </div>
+    <pre id="console"></pre>
+    <div id="loading" class="loading" role="status">
+      <h1>PiPod</h1>
+      <p id="load-pod">Starting the pod</p>
+      <p id="load-model">Starting the model</p>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
