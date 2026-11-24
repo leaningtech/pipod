@@ -1,10 +1,26 @@
+<div align="center">
+
 # PiPod
 
-**A free AI coding agent that runs open-weight models entirely in your browser. No sign-up, no API key, no cloud model.**
+### A coding agent that runs entirely in your browser tab.
+
+Model, agent and Linux sandbox are all running in the browser tab.<br>
+No install, sign-up or metering. You control your data and your compute.
+
+**[▶ Try it at pipod.browserpod.io](https://pipod.browserpod.io)**
+
+[![Live demo](https://img.shields.io/badge/demo-pipod.browserpod.io-4a7dff?style=flat-square)](https://pipod.browserpod.io)
+[![BrowserPod 4.1](https://img.shields.io/badge/BrowserPod-4.1-4a7dff?style=flat-square)](https://browserpod.io)
+[![LiteRT-LM on WebGPU](https://img.shields.io/badge/LiteRT--LM-WebGPU-34a853?style=flat-square)](https://github.com/google-ai-edge/LiteRT-LM)
+[![Gemma 4](https://img.shields.io/badge/model-Gemma%204-1a73e8?style=flat-square)](https://huggingface.co/litert-community/gemma-4-E4B-it-litert-lm)
+[![Licence: Apache 2.0](https://img.shields.io/badge/licence-Apache%202.0-blue?style=flat-square)](LICENSE)
+<img src="public/demo.gif" alt="PiPod building and running an app in a browser tab" width="800">
+
+</div>
 
 PiPod gives you a terminal coding agent in a browser tab. You describe what you want, and the agent writes files, runs shell commands, installs npm packages and starts servers, all on your own device. The language model runs locally on your GPU through WebGPU, and the code runs in a Linux-like sandbox inside the same tab.
 
-There is nothing to install and no account to create. Open the page, pick a model, press Start.
+Open the page, pick a model, press Start.
 
 ---
 
