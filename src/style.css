@@ -1,3 +1,15 @@
+/* tuimux Graphite palette */
+:root {
+  --bg: #111315;
+  --surface: #1a1c1e;
+  --surface-alt: #232527;
+  --border: #3a3c3e;
+  --text: #f2f4f6;
+  --text-dim: #9aa4af;
+  --accent: #7fd1ff;
+  --on: #88d39b;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -12,25 +24,369 @@ body {
 body {
   display: flex;
   flex-direction: column;
-  background: #1e1e1e;
-  color: #d4d4d4;
+  background: var(--bg);
+  color: var(--text);
   font-family: 'Courier New', Courier, monospace;
   font-size: 0.875rem;
+  line-height: 1.3;
 }
 
-pre {
+.dim {
+  color: var(--text-dim);
+}
+
+.app {
   flex: 1;
   min-height: 0;
-  overflow: auto;
-  padding: 0.5rem;
-  background: #1e1e1e;
-  color: #d4d4d4;
-  font-family: 'Courier New', Courier, monospace;
-  font-size: 0.875rem;
+  display: flex;
 }
 
-.overlay {
-  position: fixed;
+.sidebar {
+  width: 28ch;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-title {
+  display: flex;
+  align-items: center;
+  gap: 1ch;
+  padding-left: 1ch;
+  color: var(--accent);
+}
+
+.help-btn {
+  width: 1.6em;
+  height: 1.6em;
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: none;
+  color: var(--text-dim);
+  font: inherit;
+  font-size: 0.75rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.help-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+#help {
+  margin: auto;
+  max-width: min(64ch, calc(100vw - 32px));
+  max-height: calc(100vh - 32px);
+  padding: 0;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+}
+
+#help::backdrop {
+  background: rgb(0 0 0 / 0.6);
+}
+
+.help-body {
+  padding: 1rem 1.5rem;
+}
+
+.help-body h2 {
+  margin-bottom: 0.75rem;
+  color: var(--accent);
+  font-size: 1rem;
+}
+
+.help-body dt {
+  margin-top: 0.75rem;
+  color: var(--accent);
+  font-weight: bold;
+}
+
+.help-body dd {
+  color: var(--text-dim);
+}
+
+.help-body code {
+  color: var(--text);
+}
+
+.help-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 1rem;
+}
+
+.help-footer a {
+  color: var(--text-dim);
+}
+
+.help-footer button {
+  padding: 0.25rem 1rem;
+  border: 1px solid var(--border);
+  background: var(--surface-alt);
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.help-footer button:hover {
+  border-color: var(--accent);
+}
+
+.tabs {
+  list-style: none;
+}
+
+.tab {
+  display: flex;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.tab:hover {
+  background: var(--surface);
+}
+
+.tab.active {
+  background: var(--surface-alt);
+  color: var(--accent);
+}
+
+.tab.bash .tab-name {
+  color: var(--on);
+}
+
+.rail {
+  width: 1ch;
+}
+
+.tab.active .rail {
+  background: var(--accent);
+}
+
+.mark {
+  width: 2ch;
+  color: var(--on);
+}
+
+.add {
+  padding-left: 1ch;
+  color: var(--text-dim);
+}
+
+.add summary {
+  list-style: none;
+  cursor: pointer;
+}
+
+.add summary::-webkit-details-marker {
+  display: none;
+}
+
+.add summary:hover,
+.add[open] summary {
+  color: var(--accent);
+}
+
+.add-menu {
+  display: flex;
+  flex-direction: column;
+  padding-left: 2ch;
+}
+
+.add-menu button {
+  border: none;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.add-menu button:hover:not(:disabled) {
+  background: var(--surface-alt);
+  color: var(--accent);
+}
+
+.add-menu button:disabled {
+  color: var(--text-dim);
+  cursor: default;
+}
+
+.ports {
+  margin-top: auto;
+  border: 1px solid var(--border);
+}
+
+.ports .pane-header {
+  padding: 0 1ch;
+}
+
+#ports {
+  list-style: none;
+  padding: 0 1ch;
+}
+
+#ports li {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#ports a {
+  color: var(--text);
+}
+
+#ports a:hover {
+  color: var(--accent);
+}
+
+.panes {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.pane {
+  flex: 1 1 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  border-block: none;
+}
+
+.pane:first-child {
+  border-top: 1px solid var(--border);
+}
+
+.pane:last-child {
+  border-bottom: 1px solid var(--border);
+}
+
+.pane.active {
+  border-inline-color: var(--accent);
+}
+
+.pane.active:first-child {
+  border-top-color: var(--accent);
+}
+
+.pane.active:last-child {
+  border-bottom-color: var(--accent);
+}
+
+.pane.bash {
+  background: var(--surface);
+}
+
+.pane.bash .pane-header {
+  background: var(--surface-alt);
+  color: var(--on);
+}
+
+/* Works only if xterm uses DOM */
+.pane.bash .xterm-viewport,
+.pane.bash .xterm-screen {
+  background-color: var(--surface) !important;
+}
+
+.divider {
+  position: relative;
+  flex-shrink: 0;
+  height: 1px;
+  background: var(--border);
+  cursor: row-resize;
+  touch-action: none;
+}
+
+/* Larger grab area */
+.divider::before {
+  content: "";
+  position: absolute;
+  inset: -4px 0;
+}
+
+.divider:hover,
+.divider:active {
+  background: var(--accent);
+}
+
+.pane-header {
+  display: flex;
+  align-items: center;
+  gap: 1ch;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.close {
+  margin-left: auto;
+  padding: 0 1ch;
+  border: none;
+  background: none;
+  color: var(--text-dim);
+  font: inherit;
+  cursor: pointer;
+}
+
+.close:hover {
+  color: var(--accent);
+}
+
+.pane-body {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+
+.pane-body pre {
+  flex: 1;
+  min-width: 0;
+  overflow: auto;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+}
+
+.statusbar {
+  display: flex;
+  gap: 2ch;
+  padding: 0 1ch;
+  background: var(--surface-alt);
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+.footer-links {
+  display: flex;
+  gap: 2ch;
+}
+
+.footer-links a {
+  color: var(--text-dim);
+  text-decoration: none;
+}
+
+.footer-links a:hover {
+  color: var(--accent);
+}
+
+.app-info {
+  flex: 1;
+  overflow: hidden;
+  color: var(--accent);
+}
+
+.loading {
+  position: absolute;
   inset: 0;
   display: flex;
   flex-direction: column;
@@ -38,99 +394,210 @@ pre {
   justify-content: center;
   gap: 0.5rem;
   padding: 1rem;
-  overflow-y: auto;
-  background: #1e1e1e;
-  color: #c2c2c2;
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  font-size: 1rem;
-  line-height: 1.55;
-}
-
-.overlay[hidden] {
-  display: none;
-}
-
-.overlay h1 {
-  margin-bottom: 0.25rem;
-  color: #e6e6e6;
-  font-size: 1.75rem;
+  background: var(--bg);
+  color: var(--text-dim);
   text-align: center;
 }
 
-.logo {
+.loading[hidden] {
+  display: none;
+}
+
+.loading h1 {
+  margin-bottom: 0.5rem;
+  color: var(--accent);
+  font-size: 1.25rem;
+}
+
+/* Overlays use a light touch of the BrowserPod design kit: its dark tokens, radii and Commit Mono. */
+:root {
+  --bp-ground: #0d0d0e;
+  --bp-raised: #121213;
+  --bp-inset: #18181b;
+  --bp-text: #fafafa;
+  --bp-text-2: #d4d4d8;
+  --bp-text-3: #a1a1aa;
+  --bp-line: rgba(255, 255, 255, 0.08);
+  --bp-line-2: rgba(255, 255, 255, 0.14);
+  --bp-blue-hi: #5b8bff;
+  --bp-blue: #4a7dff;
+  --bp-blue-lo: #3457bd;
+  --bp-blue-tint: #b7cdff;
+  --bp-yellow: #ffd633;
+  --bp-r-control: 12px;
+  --bp-r-card: 16px;
+  --bp-mono: 'Commit Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+@font-face {
+  font-family: 'Commit Mono';
+  src: url('/fonts/commit-mono.woff2') format('woff2');
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+/* Setup page: a light touch of the BrowserPod design kit */
+#setup {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 1rem;
+  overflow-y: auto;
+  background: var(--bp-ground);
+  color: var(--bp-text-2);
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+#setup[hidden] {
+  display: none;
+}
+
+#setup h1 {
+  color: var(--bp-text);
+  font-family: var(--bp-mono);
+  font-size: 1.75rem;
+  line-height: 1.2;
+}
+
+#setup .logo {
   flex: none;
-  min-height: auto;
   overflow: visible;
   padding: 0;
   background: none;
   align-self: center;
-  color: #4fc1ff;
+  color: var(--bp-blue-hi);
   font-family: Menlo, Consolas, "DejaVu Sans Mono", monospace;
   font-size: 14px;
   line-height: 1.2;
 }
 
-.loading {
-  text-align: center;
-}
-
-/* Keeps the top scrollable */
-#setup {
-  justify-content: flex-start;
-}
-
 .setup {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1rem;
   width: 100%;
-  max-width: 40rem;
+  max-width: 68rem;
   margin: auto;
 }
 
-.about {
+.cols {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.25rem;
+}
+
+.left,
+.controls {
   display: flex;
   flex-direction: column;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+@media (min-width: 56rem) {
+  .cols {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    align-items: start;
+    gap: 2rem;
+  }
+}
+
+.intro {
+  display: flex;
+  align-items: center;
   gap: 1rem;
 }
 
-.about .lead {
-  color: #e6e6e6;
-  font-size: 1.1rem;
+.intro .logo {
+  font-size: 10px;
 }
 
-.about h2 {
-  margin-bottom: 0.15rem;
-  color: #e6e6e6;
+.lead {
+  margin-top: 0.25rem;
+  color: var(--bp-text-2);
+  font-size: 1rem;
+}
+
+/* Demo slot, 16:9. Swap public/demo.gif; a missing file shows the placeholder. */
+.demo {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border: 1px solid var(--bp-line-2);
+  border-radius: var(--bp-r-card);
+  background: var(--bp-raised);
+}
+
+.demo img,
+.demo-placeholder {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.demo img {
+  object-fit: cover;
+}
+
+.demo-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 1rem;
+  border: 1px dashed var(--bp-line-2);
+  border-radius: var(--bp-r-card);
+  color: var(--bp-text-3);
+  font-family: var(--bp-mono);
+  text-align: center;
+}
+
+.demo-placeholder[hidden] {
+  display: none;
+}
+
+.demo-placeholder span {
+  color: var(--bp-text-2);
   font-size: 0.95rem;
-  font-weight: 600;
 }
 
-.warning {
-  padding: 0.75rem 1rem;
-  border-left: 3px solid #c58a3b;
-  background: #2a2419;
-  color: #ead2a3;
+.demo-placeholder small {
+  font-size: 0.8rem;
 }
 
 .setup fieldset {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  border: 1px solid #333;
-  padding: 0.75rem 1rem 1rem;
+  gap: 0.6rem;
+  min-width: 0;
+  border: 1px solid var(--bp-line-2);
+  border-radius: var(--bp-r-card);
+  background: var(--bp-raised);
+  padding: 0.6rem 1rem 0.9rem;
 }
 
 .setup legend {
   padding: 0 0.35rem;
-  color: #e6e6e6;
+  color: var(--bp-text);
+  font-family: var(--bp-mono);
+  font-size: 0.85rem;
   font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
 }
 
 .options {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.4rem;
 }
 
 .option {
@@ -139,7 +606,28 @@ pre {
   column-gap: 0.6rem;
   row-gap: 0.1rem;
   align-items: baseline;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid transparent;
+  border-radius: var(--bp-r-control);
   cursor: pointer;
+}
+
+.option:hover {
+  background: var(--bp-inset);
+}
+
+.option:has(input:checked) {
+  border-color: var(--bp-blue-lo);
+  background: var(--bp-inset);
+}
+
+.option:has(input:focus-visible) {
+  outline: 2px solid var(--bp-blue-tint);
+  outline-offset: 2px;
+}
+
+.option input {
+  accent-color: var(--bp-blue);
 }
 
 .option .hint {
@@ -151,17 +639,23 @@ pre {
 }
 
 .option-name {
-  color: #e6e6e6;
+  color: var(--bp-text);
 }
 
 .hint {
-  color: #a8a8a8;
-  font-size: 0.875rem;
+  color: var(--bp-text-3);
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+
+.footnote {
+  font-size: 0.8rem;
 }
 
 .tag {
   padding: 0 0.35rem;
   border: 1px solid #c58a3b;
+  border-radius: 6px;
   color: #e0a458;
   font-size: 0.8rem;
 }
@@ -173,27 +667,58 @@ pre {
 }
 
 .setup summary {
+  width: fit-content;
+  border-radius: 6px;
   cursor: pointer;
-  color: #e6e6e6;
+  color: var(--bp-text);
 }
 
-.setup details[open] summary {
-  margin-bottom: 0.5rem;
+.setup details[open] > summary {
+  margin-bottom: 0.25rem;
 }
 
 .setup details .hint:first-of-type {
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
 }
 
 .setup a {
-  color: #4fc1ff;
+  color: var(--bp-blue-tint);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 
-.setup a:hover,
-.setup a:focus-visible {
-  color: #8fd8ff;
+.setup a:hover {
+  color: #fff;
+}
+
+.setup a:focus-visible,
+.setup summary:focus-visible,
+.setup button:focus-visible {
+  outline: 2px solid var(--bp-blue-tint);
+  outline-offset: 2px;
+}
+
+/* The explanation sits below Start, full width of the block */
+.about {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--bp-line);
+  border-radius: var(--bp-r-card);
+}
+
+.about summary {
+  font-family: var(--bp-mono);
+}
+
+.about section {
+  margin-top: 0.5rem;
+}
+
+.about h2 {
+  margin-bottom: 0.1rem;
+  color: var(--bp-text);
+  font-family: var(--bp-mono);
+  font-size: 0.9rem;
+  font-weight: 600;
 }
 
 .links {
@@ -201,30 +726,73 @@ pre {
   flex-wrap: wrap;
   justify-content: center;
   gap: 0.5rem 1.5rem;
-  padding-top: 1rem;
-  border-top: 1px solid #333;
-  font-size: 0.875rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--bp-line);
+  font-size: 0.85rem;
+}
+
+.links a {
+  color: var(--bp-text-3);
+  text-decoration: none;
+}
+
+.links a:hover {
+  color: var(--bp-text);
+  text-decoration: underline;
+}
+
+.version {
+  padding: 0.1rem 0.4rem;
+  border-radius: 6px;
+  background: rgba(183, 205, 255, 0.12);
+  color: var(--bp-blue-tint);
+  font-family: var(--bp-mono);
+  font-size: 0.75rem;
 }
 
 .start {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between;
   gap: 1rem;
 }
 
 .setup button {
   flex: none;
-  padding: 0.5rem 1.5rem;
-  border: 1px solid #4fc1ff;
-  background: transparent;
-  color: #4fc1ff;
-  font: inherit;
+  min-height: 44px;
+  padding: 0 1.75rem;
+  border: 0;
+  border-radius: var(--bp-r-control);
+  background: linear-gradient(155deg, #4a6fe0 0%, var(--bp-blue-lo) 100%);
+  color: #fff;
+  font: 600 1rem/1 var(--bp-mono);
   cursor: pointer;
 }
 
-.setup button:hover,
-.setup button:focus-visible {
-  background: #4fc1ff;
-  color: #1e1e1e;
+.setup button:hover {
+  filter: brightness(1.1);
 }
+
+@media (max-width: 30rem) {
+  .start {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .intro .logo {
+    font-size: 7px;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .option,
+  .setup button {
+    transition: background 0.15s, border-color 0.15s, filter 0.15s;
+  }
+}
+
+/* Ports need a key */
+#ports li.dim {
+  white-space: normal;
+}
+

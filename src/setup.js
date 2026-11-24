@@ -1,4 +1,5 @@
 import { DEFAULT_MODEL, MODELS } from './models.js'
+import { BROWSERPOD_URL, BROWSERPOD_VERSION, REPO_URL } from './config.js'
 
 function modelOption(id, config) {
   const label = document.createElement("label");
@@ -25,6 +26,19 @@ function modelOption(id, config) {
   return label;
 }
 
+// Footer links and the demo fallback
+function fillLinks(form) {
+  form.querySelector("#repo-link").href = REPO_URL;
+  form.querySelector("#powered-link").href = BROWSERPOD_URL;
+  form.querySelector("#bp-version").textContent = `v${BROWSERPOD_VERSION}`;
+  const img = form.querySelector("#demo-img");
+  const placeholder = form.querySelector("#demo-placeholder");
+  // A missing file can come back as the app's HTML, so this also catches a non-image
+  const showPlaceholder = () => { img.hidden = true; placeholder.hidden = false; };
+  img.addEventListener("error", showPlaceholder);
+  if (img.complete && img.naturalWidth === 0) showPlaceholder();
+}
+
 // Resolves once Start is pressed
 export function chooseSetup({ hasKey }) {
   const setupEl = document.querySelector("#setup");
@@ -38,6 +52,7 @@ export function chooseSetup({ hasKey }) {
   keyed.disabled = !hasKey;
   form.querySelector(hasKey ? 'input[value="key"]' : 'input[value="keyless"]').checked = true;
   document.querySelector("#no-key").hidden = hasKey;
+  fillLinks(form);
   setupEl.hidden = false;
 
   return new Promise((resolve) => {

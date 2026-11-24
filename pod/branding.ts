@@ -15,7 +15,18 @@ const LOGO = [
   "⠀⠀⠀⠀⠙⠻⢷⣦⣀⠀⠀⠀⠀⣀⣴⡾⠟⠉⠀⠀⠀⠀",
   "⠀⠀⠀⠀⠀⠀⠀⠈⠛⠿⠶⠶⠿⠛⠁⠀⠀⠀⠀⠀⠀⠀",
 ];
-const TAGLINE = "Made with BrowserPod and Little Coder (a fork of Pi)";
+
+// The launcher (src/main.js) sets these for the chosen model
+function describe(): string[] {
+  const model = process.env.PIPOD_MODEL_NAME || "a local model";
+  const engine = process.env.PIPOD_ENGINE === "sipp" ? "llama.cpp (WASM)" : "LiteRT-LM (WASM)";
+  return [
+    `Model: ${model}`,
+    "Runs on your device's GPU via WebGPU. No inference data leaves it.",
+    `Inference: ${engine}. Harness: Little Coder, a fork of Pi.`,
+    "BrowserPod sandboxes bash and files in this tab.",
+  ];
+}
 
 function buildHeader(theme: Theme): string[] {
   const dim = (s: string) => theme.fg("dim", s);
@@ -32,7 +43,7 @@ function buildHeader(theme: Theme): string[] {
     ...LOGO.map((line) => theme.fg("accent", line)),
     "",
     theme.bold(theme.fg("accent", "PiPod")),
-    theme.fg("muted", TAGLINE),
+    ...describe().map((line) => theme.fg("muted", line)),
     "",
     hints,
     "",
