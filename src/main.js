@@ -1,6 +1,6 @@
-import { BrowserPod } from '@leaningtech/browserpod'
-import { ACTIVE_MODEL, MODELS } from './models.js'
+import { MODELS } from './models.js'
 import { runBridge } from './bridge.js'
+import { chooseSetup } from './setup.js'
 import providerSource from '../pod/webllm-provider.ts?raw'
 
 // Built by build-little-coder.sh
@@ -8,9 +8,15 @@ const PART_URLS = Object.entries(import.meta.glob('../pod/little-coder.tgz.*', {
   .sort(([a], [b]) => a.localeCompare(b))
   .map(([, url]) => url);
 
-const MODEL_ID = ACTIVE_MODEL;
-const CONTEXT = 32768;
-const MAX_TOKENS = 4096;
+// VITE_BP_APIKEY comes from .env
+const API_KEY = import.meta.env.VITE_BP_APIKEY;
+
+// Nothing downloads before this
+const { modelId:MODEL_ID, keyed } = await chooseSetup({ hasKey:!!API_KEY });
+const config = MODELS[MODEL_ID];
+
+const CONTEXT = config.context ?? 32768;
+const MAX_TOKENS = config.maxTokens ?? 4096;
 const HOME = "/home/user";
 const BRIDGE_DIR = `${HOME}/bridge`;
 const EXTENSION = `${HOME}/webllm-provider/index.ts`;
@@ -18,51 +24,38 @@ const NPM_PREFIX = `${HOME}/.npm-global`;
 const MARKER = `${NPM_PREFIX}/.pipod-build`;
 const BUILD_ID = PART_URLS.join(" ");
 const CHUNK = 4 * 1024 * 1024;
+const PORTAL_FILE = `${HOME}/.pipod-portal`;
 
-const statusEl = document.querySelector("#status");
 const loadingEl = document.querySelector("#loading");
 const loadModelEl = document.querySelector("#load-model");
 const loadPodEl = document.querySelector("#load-pod");
-const setStatus = (text) => { statusEl.textContent = loadModelEl.textContent = text; };
+const setStatus = (text) => { loadModelEl.textContent = text; };
+loadingEl.hidden = false;
 
 // Load the model's engine
 const ENGINES = {
   sipp:() => import('./sipp-engine.js'),
   litert:() => import('./litert-engine.js'),
 };
-const config = MODELS[ACTIVE_MODEL];
 const enginePromise = ENGINES[config.engine ?? "sipp"]().then(({ createEngine }) => createEngine({
   model:config,
   context:CONTEXT,
-  onStatus:(text) => setStatus(`${MODEL_ID}: ${text}`)
+  onStatus:(text) => setStatus(`${config.name}: ${text}`)
 }));
 enginePromise.catch((err) => setStatus(`Model failed to load: ${err.message}`));
 
 // Initialize the Pod
-// VITE_BP_APIKEY is an environmental variable containing your Api Key
-// Its value is defined in the file `.env` in the project's main directory
-// To get an Api Key, visit https://console.browserpod.io
+const { BrowserPod } = await import('@leaningtech/browserpod');
+// Keyless: no portals, npm works
 const pod = await BrowserPod.boot({
-  apiKey:import.meta.env.VITE_BP_APIKEY,
+  ...(keyed ? { apiKey:API_KEY } : { network:await BrowserPod.createFetchNetwork({ fetch:BrowserPod.opinionatedFetch }) }),
   storageKey:"little-coder-v2"
 });
 
-// Show a link for each portal
-const portalsEl = document.querySelector("#portals");
-const portalItems = new Map();
+// Pi's footer shows the latest
 pod.onPortal(({url, port}) => {
-  let item = portalItems.get(port);
-  if (!item) {
-    item = document.createElement("li");
-    portalItems.set(port, item);
-    portalsEl.append(item);
-  }
-  const link = document.createElement("a");
-  link.href = url;
-  link.target = "_blank";
-  link.rel = "noopener";
-  link.textContent = url;
-  item.replaceChildren(`Port ${port}: `, link);
+  console.log(`[portal] ${new Date().toISOString()} port ${port} ${url}`);
+  writeFile(PORTAL_FILE, `Port ${port}: ${url}`).catch(console.error);
 });
 
 async function writeFile(path, text) {
@@ -77,6 +70,9 @@ const launcher = [
   `export WEBLLM_MODEL=${MODEL_ID}`,
   `export WEBLLM_CONTEXT=${CONTEXT}`,
   `export WEBLLM_MAX_TOKENS=${MAX_TOKENS}`,
+  `export WEBLLM_REASONING=${config.thinking ? 1 : 0}`,
+  `export PIPOD_PORTAL_FILE=${PORTAL_FILE}`,
+  `export PIPOD_PORTALS=${keyed ? 1 : 0}`,
   "export LITTLE_CODER_PERMISSION_MODE=accept-all",
   `exec ${NPM_PREFIX}/bin/little-coder --no-update-check --extension ${EXTENSION} --model webllm/${MODEL_ID} "$@"`,
   ""
@@ -121,8 +117,8 @@ async function installLittleCoder() {
 // Create a Terminal
 const terminal = await pod.createDefaultTerminal(document.querySelector("#console"));
 
-// Clear old bridge requests
-await pod.run("bash", ["-c", `rm -rf ${BRIDGE_DIR}`], {terminal:terminal});
+// Clear old requests and portal
+await pod.run("bash", ["-c", `rm -rf ${BRIDGE_DIR} ${PORTAL_FILE}`], {terminal:terminal});
 
 // Copy helpers into the pod
 await pod.createDirectory(`${HOME}/webllm-provider`, {recursive:true});
@@ -142,8 +138,7 @@ if (engine && ready) {
     engine,
     modelId:MODEL_ID,
     pod,
-    dir:BRIDGE_DIR,
-    onStatus:(s) => setStatus(s === "generating" ? `${MODEL_ID}: generating` : `${MODEL_ID}: ready`)
+    dir:BRIDGE_DIR
   });
 
   // Launch, then fall back to bash

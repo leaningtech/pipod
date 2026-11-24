@@ -9,18 +9,62 @@ const MAX_TOKENS = Number(process.env.WEBLLM_MAX_TOKENS || 4096);
 const BASE_URL = "http://webllm.bridge/v1";
 const REQUEST_FILE = join(BRIDGE_DIR, "request.json");
 const POLL_MS = 40;
+const PORTAL_FILE = process.env.PIPOD_PORTAL_FILE || "/home/user/.pipod-portal";
+const PORTALS = process.env.PIPOD_PORTALS !== "0";
+const REASONING = process.env.WEBLLM_REASONING === "1";
 
-const SERVER_GUIDANCE = [
-  "## Running servers and other long-running processes",
-  "Never run a long-running process (a web server, `npm start`, `npm run dev`, a file watcher) in the foreground or with a plain `&`.",
-  "The bash tool waits for all output to close, so the command would never return and you would be stuck.",
-  "Always start it detached, with its output sent to a log file and stdin from /dev/null, for example:",
-  "`cd /home/user/my-app && node app.js > /tmp/my-app.log 2>&1 < /dev/null &`",
-  "Then confirm it started with `sleep 2 && cat /tmp/my-app.log`.",
-  "When a server listens on a port, the user automatically gets a link to it, so just tell them which port it is on.",
+// Condensed from PI.md
+const GUIDANCE = [
+  "## Your environment",
+  "You run inside PiPod: a Linux-like sandbox (BrowserPod) running in the user's browser tab, compiled to WebAssembly. The CPU is effectively Wasm, not x86_64 or arm64.",
+  "Available: bash, git, node 22, npm, pnpm, rg, fd, curl, wget, tar, unzip and coreutils. python3 has only its standard library (no pip). There is no Rust or Go toolchain.",
+  "`timeout` is broken here: it never runs its command. Use a tool's own time limit instead, for example `curl --max-time 5`.",
+  "",
+  "## Native npm packages",
+  "Packages with native binaries do not run. Before installing, add `overrides` to package.json (for pnpm, in pnpm-workspace.yaml):",
+  "- esbuild: \"npm:esbuild-wasm@*\"",
+  "- rollup: \"npm:@rollup/wasm-node@*\"",
+  "- @parcel/watcher: \"npm:@parcel/watcher-wasm@*\"",
+  "Add the esbuild and rollup overrides up front for Vite 7 and earlier. Vite 8.2+ instead needs `@rolldown/binding-wasm32-wasi` in devDependencies, at the installed rolldown version.",
+  "Next.js: add `@next/swc-wasm-nodejs` at exactly the `next` version, override @parcel/watcher, and never use Turbopack (use `next dev --webpack` on Next 16+).",
+  "Errors mentioning `.node` files, node-gyp, or modules like `@esbuild/linux-x64` mean a native binary: fix them with overrides, not --ignore-scripts.",
+  "Avoid sharp, sqlite3, bcrypt and node-sass. Prefer pure-JS packages such as bcryptjs, sass and sql.js.",
+  "",
+  "## Servers",
+  "Never run a server in the foreground or with a plain `&`: the bash tool waits for all output to close, so it would never return.",
+  "Start it detached, with output to a log and stdin from /dev/null, then check the log:",
+  "`cd /home/user/my-app && nohup npm run dev > /tmp/my-app.log 2>&1 < /dev/null &`",
+  "`sleep 3 && tail -20 /tmp/my-app.log`",
+  "Bind servers to 0.0.0.0, for example `vite --host 0.0.0.0` or `app.listen(3000, '0.0.0.0')`. Test them inside the pod with `curl -s --max-time 5 http://localhost:PORT`.",
+  "Before restarting a server, find it with `ps` and `kill` it so its port is free.",
+  ...(PORTALS
+    ? [
+        "When a server starts listening, a tool result will end with a line like `PiPod portal: port 3000 is live at https://...`.",
+        "Give the user that exact URL. Never give them a localhost URL, because it does not work outside the pod.",
+        "",
+        "## Network",
+        "Outbound access is limited to an allowlist that includes the npm registry, github.com and raw.githubusercontent.com (not api.github.com or codeload.github.com). Other hosts fail with ENOTFOUND.",
+      ]
+    : [
+        "Servers have no public URL in this session, so the user cannot open them. Say the server is running inside the pod and show that it responds with curl.",
+        "",
+        "## Network",
+        "npm install works. Other sites only work if they allow requests from a web page (CORS), so most will fail.",
+      ]),
 ].join("\n");
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+function readPortal() {
+  try {
+    return readFileSync(PORTAL_FILE, "utf-8").trim();
+  } catch {
+    return "";
+  }
+}
+
+// Ends with a lone & (not &&)
+const BACKGROUNDS = /(^|[^&])&\s*($|[;\n)])/;
 
 function removeRequest(id: string) {
   try {
@@ -103,8 +147,42 @@ globalThis.fetch = (async (input: any, init?: any) => {
 
 export default function (pi: any) {
   pi.on("before_agent_start", async (event: any) => ({
-    systemPrompt: `${event.systemPrompt}\n\n${SERVER_GUIDANCE}`,
+    systemPrompt: `${event.systemPrompt}\n\n${GUIDANCE}`,
   }));
+
+  // Page writes the latest portal
+  let portalTimer: ReturnType<typeof setInterval> | undefined;
+  pi.on("session_start", async (_event: any, ctx: any) => {
+    if (!ctx.hasUI) return;
+    let shown = "";
+    const show = () => {
+      const text = readPortal();
+      if (text && text !== shown) ctx.ui.setStatus("pipod-portal", (shown = text));
+    };
+    clearInterval(portalTimer);
+    portalTimer = setInterval(show, 1000);
+    portalTimer.unref?.();
+    show();
+  });
+  pi.on("session_shutdown", async () => clearInterval(portalTimer));
+
+  // Tell the model new portals
+  let told = readPortal();
+  pi.on("tool_result", async (event: any) => {
+    let text = readPortal();
+    // Portals open just after launch
+    if (text === told && event.toolName === "bash" && BACKGROUNDS.test(String(event.input?.command ?? ""))) {
+      for (let i = 0; i < 20 && text === told; i++) {
+        await sleep(250);
+        text = readPortal();
+      }
+    }
+    const match = /^Port (\d+): (\S+)$/.exec(text);
+    if (!match || text === told) return;
+    told = text;
+    const note = `PiPod portal: port ${match[1]} is live at ${match[2]}`;
+    return { content: [...(event.content ?? []), { type: "text", text: `\n\n${note}` }] };
+  });
 
   pi.registerProvider("webllm", {
     baseUrl: BASE_URL,
@@ -114,7 +192,7 @@ export default function (pi: any) {
       {
         id: MODEL_ID,
         name: `${MODEL_ID} (in browser)`,
-        reasoning: true,
+        reasoning: REASONING,
         input: ["text"],
         contextWindow: CONTEXT,
         maxTokens: MAX_TOKENS,

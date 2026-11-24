@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@huggingface/jinja": "0.5.10",
-    "@leaningtech/browserpod": "latest",
+    "@leaningtech/browserpod": "4.1.0",
     "@litert-lm/core": "0.20.0",
     "@sipphq/sipp": "0.1.4"
   }
