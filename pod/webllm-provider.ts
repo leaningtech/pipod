@@ -154,6 +154,8 @@ export default function (pi: any) {
   let portalTimer: ReturnType<typeof setInterval> | undefined;
   pi.on("session_start", async (_event: any, ctx: any) => {
     if (!ctx.hasUI) return;
+    // Repo and BrowserPod credit, from the launcher
+    if (process.env.PIPOD_FOOTER) ctx.ui.setStatus("pipod-links", process.env.PIPOD_FOOTER);
     let shown = "";
     const show = () => {
       const text = readPortal();

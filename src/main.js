@@ -1,6 +1,7 @@
 import { MODELS } from './models.js'
 import { runBridge } from './bridge.js'
 import { chooseSetup } from './setup.js'
+import { BROWSERPOD_URL, BROWSERPOD_VERSION, LITERT_URL, REPO_URL } from './config.js'
 import providerSource from '../pod/webllm-provider.ts?raw'
 
 // Built by build-little-coder.sh
@@ -8,8 +9,8 @@ const PART_URLS = Object.entries(import.meta.glob('../pod/little-coder.tgz.*', {
   .sort(([a], [b]) => a.localeCompare(b))
   .map(([, url]) => url);
 
-// VITE_BP_APIKEY comes from .env
-const API_KEY = import.meta.env.VITE_BP_APIKEY;
+// BP_APIKEY comes from .env (VITE_BP_APIKEY still works)
+const API_KEY = import.meta.env.BP_APIKEY || import.meta.env.VITE_BP_APIKEY;
 
 // Nothing downloads before this
 const { modelId:MODEL_ID, keyed } = await chooseSetup({ hasKey:!!API_KEY });
@@ -36,7 +37,11 @@ const tabsEl = document.querySelector(".tabs");
 const addEl = document.querySelector(".add");
 const portsEl = document.querySelector("#ports");
 for (const el of document.querySelectorAll(".model-name")) el.textContent = config.name;
-if (!keyed) portsEl.firstElementChild.textContent = "Portal links need a BrowserPod key";
+document.querySelector("#sb-repo").href = REPO_URL;
+document.querySelector("#sb-powered").href = BROWSERPOD_URL;
+document.querySelector("#sb-version").textContent = `v${BROWSERPOD_VERSION}`;
+document.querySelector("#sb-litert").href = LITERT_URL;
+if (!keyed) portsEl.firstElementChild.textContent = "Preview links need internet access";
 
 // Drag to resize panes
 const MIN_PANE = 60;
@@ -217,6 +222,9 @@ const launcher = [
   `export WEBLLM_CONTEXT=${CONTEXT}`,
   `export WEBLLM_MAX_TOKENS=${MAX_TOKENS}`,
   `export WEBLLM_REASONING=${config.thinking ? 1 : 0}`,
+  `export PIPOD_MODEL_NAME='${config.name}'`,
+  `export PIPOD_ENGINE=${config.engine ?? "sipp"}`,
+  `export PIPOD_FOOTER='${REPO_URL.replace(/^https?:\/\//, "")} | Powered by BrowserPod v${BROWSERPOD_VERSION} (browserpod.io) | LiteRT-LM by Google AI Edge (${LITERT_URL.replace(/^https?:\/\//, "")})'`,
   `export PIPOD_PORTAL_FILE=${PORTAL_FILE}`,
   `export PIPOD_PORTALS=${keyed ? 1 : 0}`,
   "export LITTLE_CODER_PERMISSION_MODE=accept-all",
