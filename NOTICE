@@ -33,7 +33,5 @@ npm dependencies of the web app (not bundled in this repository)
 Models (downloaded from Hugging Face at runtime, not distributed here)
 ----------------------------------------------------------------------
 - Gemma 4 E4B and E2B (litert-community LiteRT builds), Apache License 2.0
-- Qwen2.5 Coder 1.5B Instruct (litert-community LiteRT build),
-  Apache License 2.0
 - Qwen3.5 4B (unsloth GGUF build), Apache License 2.0
 - Tiny-Agent-a 0.5B (driaforall), Apache License 2.0

@@ -17,18 +17,6 @@ export const MODELS = {
     thinking:true,
     sampling:{ temperature:1.0, p:0.95, k:64 },
   },
-  "Qwen2.5-Coder-1.5B-Instruct": {
-    name:"Qwen2.5 Coder 1.5B",
-    size:"1.1 GB",
-    unstable:"Quick to download, but it only holds a short conversation and may fail at tool calls.",
-    engine:"litert",
-    url:"https://huggingface.co/litert-community/Qwen2.5-Coder-1.5B-Instruct/resolve/main/Qwen2.5-Coder-1.5B-Instruct_int4.litertlm",
-    toolFormat:"native",
-    // LiteRT build's KV budget
-    context:4096,
-    maxTokens:1024,
-    sampling:{ temperature:0.7, p:0.8, k:20 },
-  },
   "Qwen3.5-4B-Q4_K_M": {
     name:"Qwen3.5 4B",
     size:"2.7 GB",

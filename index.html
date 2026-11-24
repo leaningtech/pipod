@@ -52,9 +52,28 @@
           <div class="pane-body">
             <pre id="console"></pre>
             <div id="loading" class="loading" role="status">
-              <h1>PiPod</h1>
-              <p id="load-pod">Starting the pod</p>
-              <p id="load-model">Starting the model</p>
+              <pre class="logo" aria-hidden="true">⠀⠀⠀⠀⠀⠀⠀⢀⣠⣴⠾⠷⣦⡀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⣀⣤⡾⠟⠋⠁⠀⠀⢸⣧⠸⠷⣦⡀⠀⠀⠀⠀
+⠀⣠⣴⠿⠛⠁⠀⠀⣀⣤⣶⠟⢸⣿⠀⠀⢸⣿⢰⣦⣄⠀
+⢰⡿⠁⠀⠀⣠⣴⡾⠛⠉⠀⠀⢸⣿⢰⡾⢸⣿⠀⠈⢻⡇
+⢺⡇⠀⠀⣼⡟⠁⠀⠀⢀⣠⣶⢸⣿⠀⠀⢸⣿⠀⠀⢸⡇
+⢸⡇⠀⠀⣿⡇⠀⠀⣼⡟⠉⠀⢸⣿⠀⠀⢸⣿⠀⠀⢸⡇
+⢸⡇⠀⠀⣿⡇⠀⠀⣿⡇⠀⣀⣼⡟⠀⠀⢸⣿⠀⠀⢸⡇
+⣾⡇⠀⠀⣿⡇⠀⠀⣩⣴⡾⠛⠉⠀⠀⠀⣸⡿⠀⠀⢸⡇
+⠸⣧⡀⠀⠙⠿⠶⠿⣋⡅⠀⠀⢀⣠⣶⠿⠛⠁⠀⢀⣾⠇
+⠀⠙⠿⣶⣄⡀⠀⠀⠙⢷⣶⡾⠟⠋⠀⠀⢀⣠⣶⠿⠋⠀
+⠀⠀⠀⠀⠙⠻⢷⣦⣀⠀⠀⠀⠀⣀⣴⡾⠟⠉⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠈⠛⠿⠶⠶⠿⠛⠁⠀⠀⠀⠀⠀⠀⠀</pre>
+              <h1>Starting PiPod</h1>
+              <ol class="steps">
+                <li id="step-pod" class="step">
+                  <span id="load-pod">Starting BrowserPod MicroVM</span>
+                </li>
+                <li id="step-model" class="step">
+                  <span id="load-model">Starting the model</span>
+                  <div class="bar"><div id="load-bar"></div></div>
+                </li>
+              </ol>
             </div>
           </div>
         </section>
@@ -125,10 +144,8 @@
 
     <div id="setup" hidden>
       <form id="setup-form" class="setup">
-        <div class="cols">
-          <div class="left">
-          <section class="intro">
-            <pre class="logo" aria-hidden="true">⠀⠀⠀⠀⠀⠀⠀⢀⣠⣴⠾⠷⣦⡀⠀⠀⠀⠀⠀⠀⠀⠀
+        <section class="intro">
+          <pre class="logo" aria-hidden="true">⠀⠀⠀⠀⠀⠀⠀⢀⣠⣴⠾⠷⣦⡀⠀⠀⠀⠀⠀⠀⠀⠀
 ⠀⠀⠀⠀⣀⣤⡾⠟⠋⠁⠀⠀⢸⣧⠸⠷⣦⡀⠀⠀⠀⠀
 ⠀⣠⣴⠿⠛⠁⠀⠀⣀⣤⣶⠟⢸⣿⠀⠀⢸⣿⢰⣦⣄⠀
 ⢰⡿⠁⠀⠀⣠⣴⡾⠛⠉⠀⠀⢸⣿⢰⡾⢸⣿⠀⠈⢻⡇
@@ -140,55 +157,70 @@
 ⠀⠙⠿⣶⣄⡀⠀⠀⠙⢷⣶⡾⠟⠋⠀⠀⢀⣠⣶⠿⠋⠀
 ⠀⠀⠀⠀⠙⠻⢷⣦⣀⠀⠀⠀⠀⣀⣴⡾⠟⠉⠀⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⠀⠈⠛⠿⠶⠶⠿⠛⠁⠀⠀⠀⠀⠀⠀⠀</pre>
-            <div>
-              <h1>PiPod</h1>
-              <p class="lead">A free coding agent that runs entirely on your device, AI model included. Your prompts and code never leave it.</p>
-            </div>
-          </section>
-          <figure class="demo">
-            <!-- DEMO SLOT: put a 10-20 second recording (16:9) at public/demo.gif, or change the src below. If the file is missing, the placeholder shows instead. -->
-            <img id="demo-img" src="/demo.gif" alt="A short demo of PiPod building a small app" width="1280" height="720" />
-            <div class="demo-placeholder" id="demo-placeholder" hidden>
-              <span>Demo coming soon</span>
-              <small>A 10 to 20 second recording of PiPod in use will go here.</small>
-            </div>
-          </figure>
+          <div>
+            <h1>PiPod</h1>
+            <p class="lead">A free coding agent that runs entirely on your device, AI model included. Your prompts and code never leave it.</p>
           </div>
-          <div class="controls">
-            <fieldset>
-              <legend>Model</legend>
-              <p class="hint">Larger models take longer to download and use more of your device. Smaller ones are quicker but less reliable at tool calls.</p>
-              <div id="models" class="options"></div>
-              <details>
-                <summary>Advanced</summary>
-                <p class="hint">Legacy engine. These can be tried on devices with limited resources.</p>
-                <div id="legacy-models" class="options"></div>
-              </details>
-            </fieldset>
-            <fieldset>
-              <legend>Network access</legend>
-              <div class="options">
-                <label class="option">
-                  <input type="radio" name="network" value="keyless" />
-                  <span class="option-name">Limited internet access</span>
-                  <span class="hint">The sandbox can install npm packages and reach servers that accept cross-origin browser requests. No preview links.</span>
-                </label>
-                <label class="option">
-                  <input type="radio" name="network" value="key" />
-                  <span class="option-name">Internet access</span>
-                  <span class="hint">Full web access, with a key from <a href="https://browserpod.io/edge" target="_blank" rel="noopener">BrowserPod Edge</a>, the service that provides internet access for BrowserPod. Servers you run also get public preview links.</span>
-                </label>
-              </div>
-              <p id="no-key" class="hint" hidden>Full internet access isn't available in this build (no BrowserPod Edge key).</p>
-            </fieldset>
-            <div class="start">
-              <p class="hint">Start downloads the model unless it is already saved in your browser. On weaker devices the browser may stop responding for a while.</p>
-              <button type="submit" class="primary">Start</button>
+        </section>
+        <div class="cols">
+          <fieldset>
+            <legend>Model</legend>
+            <p class="hint">Larger models take longer to download and use more of your device. Smaller ones are quicker but less reliable at tool calls.</p>
+            <div id="models" class="options"></div>
+            <details>
+              <summary>Advanced</summary>
+              <p class="hint">Legacy engine. These can be tried on devices with limited resources.</p>
+              <div id="legacy-models" class="options"></div>
+            </details>
+          </fieldset>
+          <fieldset>
+            <legend>Network access</legend>
+            <div class="options">
+              <label class="option">
+                <input type="radio" name="network" value="keyless" />
+                <span class="option-name">Limited internet access</span>
+                <span class="hint">The sandbox can install npm packages and reach servers that accept cross-origin browser requests. No preview links.</span>
+              </label>
+              <label class="option">
+                <input type="radio" name="network" value="key" />
+                <span class="option-name">Internet access</span>
+                <span class="hint">Full web access, with a key from <a href="https://browserpod.io/edge" target="_blank" rel="noopener">BrowserPod Edge</a>, the service that provides internet access for BrowserPod. Servers you run also get public preview links.</span>
+              </label>
             </div>
-          </div>
+            <p id="no-key" class="hint" hidden>Full internet access isn't available in this build (no BrowserPod Edge key).</p>
+          </fieldset>
         </div>
-        <details class="about" open>
-          <summary>How PiPod works</summary>
+        <div class="start">
+          <p class="hint">Start downloads the model unless it is already saved in your browser. On weaker devices the browser may stop responding for a while.</p>
+          <button type="submit" class="primary">Start</button>
+        </div>
+        <fieldset class="demo-card">
+          <legend>Demo</legend>
+          <div class="demo-body">
+            <div class="demo-text">
+              <dl>
+                <dt>Prompt</dt>
+                <dd>Create and run a "hello world" project in vite</dd>
+                <dt>Model</dt>
+                <dd>Gemma 4 E2B, on the GPU in this tab</dd>
+                <dt>Steps</dt>
+                <dd>Scaffolds the app with <code>npm create vite</code>, then runs <code>npm install</code> and <code>npm run dev</code></dd>
+                <dt>Result</dt>
+                <dd>The app opens in a new tab through a BrowserPod portal link</dd>
+              </dl>
+            </div>
+            <figure class="demo">
+              <!-- DEMO SLOT: put a 10-20 second recording at public/demo.gif, or change the src below. If the file is missing, the placeholder shows instead. -->
+              <img id="demo-img" src="/demo.gif" alt="A short demo of PiPod building a small app" width="1144" height="676" />
+              <div class="demo-placeholder" id="demo-placeholder" hidden>
+                <span>Demo coming soon</span>
+                <small>A 10 to 20 second recording of PiPod in use will go here.</small>
+              </div>
+            </figure>
+          </div>
+        </fieldset>
+        <fieldset class="about">
+          <legend>How PiPod works</legend>
           <section>
             <h2>Models</h2>
             <p>Open-weight models, licensed under <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank" rel="noopener">Apache 2.0</a>, downloaded from <a href="https://huggingface.co" target="_blank" rel="noopener">Hugging Face</a> the first time you choose one. They're saved in your browser's storage, so later visits don't download them again.</p>
@@ -205,7 +237,7 @@
             <h2>Execution</h2>
             <p>Code runs in <a href="https://browserpod.io" target="_blank" rel="noopener">BrowserPod</a>, a Linux-like sandbox with <a href="https://nodejs.org" target="_blank" rel="noopener">Node.js</a> that runs in this tab. BrowserPod is used unmodified.</p>
           </section>
-        </details>
+        </fieldset>
         <footer class="links">
           <a id="repo-link" href="https://github.com/leaningtech/pipod" target="_blank" rel="noopener">PiPod on GitHub</a>
           <a id="powered-link" href="https://browserpod.io" target="_blank" rel="noopener">Powered by BrowserPod <span class="version" id="bp-version"></span></a>

@@ -32,7 +32,13 @@ const PORTAL_FILE = `${HOME}/.pipod-portal`;
 const loadingEl = document.querySelector("#loading");
 const loadModelEl = document.querySelector("#load-model");
 const loadPodEl = document.querySelector("#load-pod");
-const setStatus = (text) => { loadModelEl.textContent = text; };
+const loadBarEl = document.querySelector("#load-bar");
+const setStep = (id, state) => document.querySelector(id).classList.add(state);
+const setStatus = (text) => {
+  loadModelEl.textContent = text;
+  const pct = text.match(/ (\d+)%/)?.[1];
+  loadBarEl.style.width = pct ? `${pct}%` : "";
+};
 
 const panesEl = document.querySelector(".panes");
 const tabsEl = document.querySelector(".tabs");
@@ -113,9 +119,12 @@ const ENGINES = {
 const enginePromise = ENGINES[config.engine ?? "sipp"]().then(({ createEngine }) => createEngine({
   model:config,
   context:CONTEXT,
-  onStatus:(text) => setStatus(`${config.name}: ${text}`)
+  onStatus:setStatus
 }));
-enginePromise.catch((err) => setStatus(`Model failed to load: ${err.message}`));
+enginePromise.then(
+  () => { setStatus("Model loaded"); setStep("#step-model", "done"); },
+  (err) => { setStatus(`Model failed to load: ${err.message}`); setStep("#step-model", "failed"); }
+);
 
 // Initialize the Pod
 const { BrowserPod } = await import('@leaningtech/browserpod');
@@ -250,24 +259,30 @@ async function readFile(path) {
 
 // Copy in prebuilt little-coder
 async function installLittleCoder() {
-  if (await readFile(MARKER) === BUILD_ID) return;
-  loadPodEl.textContent = "Copying PiPod into the pod";
+  if (await readFile(MARKER) === BUILD_ID) {
+    loadPodEl.textContent = "Harness already installed, skipping";
+    return;
+  }
+  loadPodEl.textContent = `Downloading harness (${PART_URLS.length} parts)`;
   const parts = await Promise.all(PART_URLS.map(async (url) => {
     const res = await fetch(url);
     if (!res.ok) throw new Error(`${url} returned ${res.status}`);
     return res.blob();
   }));
   // Gunzip in the page, not the pod
+  loadPodEl.textContent = "Decompressing harness";
   const gunzipped = new Blob(parts).stream().pipeThrough(new DecompressionStream("gzip"));
   const data = await new Response(gunzipped).arrayBuffer();
   const tar = `${HOME}/little-coder.tar`;
+  loadPodEl.textContent = "Writing harness to the MicroVM";
   const file = await pod.createFile(tar, "binary");
   for (let i = 0; i < data.byteLength; i += CHUNK) await file.write(data.slice(i, i + CHUNK));
   await file.close();
-  loadPodEl.textContent = "Unpacking PiPod";
+  loadPodEl.textContent = "Extracting harness";
   const unpack = `mkdir -p ${NPM_PREFIX} && tar xf ${tar} -C ${NPM_PREFIX} && rm ${tar} && printf '%s' '${BUILD_ID}' > ${MARKER}`;
   await pod.run("bash", ["-c", unpack], {terminal:terminal});
   if (await readFile(MARKER) !== BUILD_ID) throw new Error("unpacking did not finish");
+  loadPodEl.textContent = "Harness installed";
 }
 
 // Create a Terminal
@@ -288,8 +303,8 @@ await writeFile(EXTENSION, providerSource);
 await writeFile(`${HOME}/little-coder.sh`, launcher);
 
 const installed = installLittleCoder()
-  .then(() => { loadPodEl.textContent = "PiPod is ready"; return true; })
-  .catch((err) => { console.error(err); loadPodEl.textContent = `Setup failed: ${err.message}`; return false; });
+  .then(() => { setStep("#step-pod", "done"); return true; })
+  .catch((err) => { console.error(err); loadPodEl.textContent = `Setup failed: ${err.message}`; setStep("#step-pod", "failed"); return false; });
 
 const [engine, ready] = await Promise.all([enginePromise.catch(() => null), installed]);
 
