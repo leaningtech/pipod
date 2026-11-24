@@ -212,9 +212,9 @@ npm run dev
 
 The dev server sends the cross-origin isolation headers BrowserPod needs (`vite.config.js`).
 
-### Internet access key (optional)
+### BrowserPod key (optional)
 
-Without a key, PiPod runs in limited mode only. To enable full internet access and preview links, create a key at [console.browserpod.io](https://console.browserpod.io) and add it to a `.env` file:
+Without a key, PiPod runs in keyless mode only. To enable portals and wider web access, create an API key at [console.browserpod.io](https://console.browserpod.io) and add it to a `.env` file:
 
 ```
 BP_APIKEY=your-key
