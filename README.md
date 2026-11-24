@@ -107,9 +107,9 @@ Model sources:
 - [unsloth/Qwen3.5-4B-GGUF](https://huggingface.co/unsloth/Qwen3.5-4B-GGUF)
 - [driaforall/Tiny-Agent-a-0.5B](https://huggingface.co/driaforall/Tiny-Agent-a-0.5B)
 
-## With or without a BrowserPod key
+## Network access: with or without a BrowserPod key
 
-PiPod's setup screen offers two ways to start the sandbox.
+PiPod's setup screen offers two network modes, "Internet access" (with a key) and "Limited internet access" (without one).
 
 | | With key | Without key |
 |---|---|---|
@@ -232,7 +232,7 @@ The dev server sends the cross-origin isolation headers BrowserPod needs (`vite.
 Without a key, PiPod runs in keyless mode only. To enable portals and wider web access, create an API key at [console.browserpod.io](https://console.browserpod.io) and add it to a `.env` file:
 
 ```
-VITE_BP_APIKEY=your-key
+BP_APIKEY=your-key
 ```
 
 The key is built into the web app, so anyone using your deployment uses your key.

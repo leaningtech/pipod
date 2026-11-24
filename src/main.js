@@ -1,6 +1,7 @@
 import { MODELS } from './models.js'
 import { runBridge } from './bridge.js'
 import { chooseSetup } from './setup.js'
+import { BROWSERPOD_VERSION, LITERT_URL, REPO_URL } from './config.js'
 import providerSource from '../pod/webllm-provider.ts?raw'
 
 // Built by build-little-coder.sh
@@ -8,8 +9,8 @@ const PART_URLS = Object.entries(import.meta.glob('../pod/little-coder.tgz.*', {
   .sort(([a], [b]) => a.localeCompare(b))
   .map(([, url]) => url);
 
-// VITE_BP_APIKEY comes from .env
-const API_KEY = import.meta.env.VITE_BP_APIKEY;
+// BP_APIKEY comes from .env (VITE_BP_APIKEY still works)
+const API_KEY = import.meta.env.BP_APIKEY || import.meta.env.VITE_BP_APIKEY;
 
 // Nothing downloads before this
 const { modelId:MODEL_ID, keyed } = await chooseSetup({ hasKey:!!API_KEY });
@@ -71,6 +72,9 @@ const launcher = [
   `export WEBLLM_CONTEXT=${CONTEXT}`,
   `export WEBLLM_MAX_TOKENS=${MAX_TOKENS}`,
   `export WEBLLM_REASONING=${config.thinking ? 1 : 0}`,
+  `export PIPOD_MODEL_NAME='${config.name}'`,
+  `export PIPOD_ENGINE=${config.engine ?? "sipp"}`,
+  `export PIPOD_FOOTER='${REPO_URL.replace(/^https?:\/\//, "")} | Powered by BrowserPod v${BROWSERPOD_VERSION} (browserpod.io) | LiteRT-LM by Google AI Edge (${LITERT_URL.replace(/^https?:\/\//, "")})'`,
   `export PIPOD_PORTAL_FILE=${PORTAL_FILE}`,
   `export PIPOD_PORTALS=${keyed ? 1 : 0}`,
   "export LITTLE_CODER_PERMISSION_MODE=accept-all",
