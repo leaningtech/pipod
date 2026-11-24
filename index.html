@@ -8,8 +8,115 @@
     <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
-    <pre id="console"></pre>
-    <div id="setup" class="overlay" hidden>
+    <div class="app">
+      <aside class="sidebar">
+        <div class="sidebar-title">
+          PiPod
+          <button type="button" class="help-btn" aria-label="What is all this?" title="Help">?</button>
+        </div>
+        <ul class="tabs">
+          <li class="tab pipod active" data-pane="pipod-1">
+            <span class="rail"></span><span class="mark">▏</span>
+            <span class="tab-name model-name"></span>
+          </li>
+          <li class="tab bash" data-pane="bash-1">
+            <span class="rail"></span><span class="mark">▏</span>
+            <span class="tab-name">Bash</span>
+          </li>
+        </ul>
+        <details class="add">
+          <summary>+ Add</summary>
+          <div class="add-menu">
+            <button type="button" data-kind="bash" disabled>Terminal</button>
+            <button type="button" data-kind="pipod" disabled>PiPod</button>
+          </div>
+        </details>
+        <section class="ports">
+          <div class="pane-header">
+            Ports
+            <button type="button" class="help-btn" aria-label="What are ports?" title="Help">?</button>
+          </div>
+          <ul id="ports">
+            <li class="dim">None yet</li>
+          </ul>
+        </section>
+      </aside>
+      <main class="panes">
+        <section class="pane pipod active" data-pane="pipod-1">
+          <div class="pane-header">
+            <b class="model-name"></b> <span class="dim">(running)</span>
+            <button type="button" class="close" aria-label="Close pane" title="Close pane">×</button>
+          </div>
+          <div class="pane-body">
+            <pre id="console"></pre>
+            <div id="loading" class="loading" role="status">
+              <h1>PiPod</h1>
+              <p id="load-pod">Starting the pod</p>
+              <p id="load-model">Starting the model</p>
+            </div>
+          </div>
+        </section>
+        <div class="divider" role="separator" aria-orientation="horizontal"></div>
+        <section class="pane bash" data-pane="bash-1">
+          <div class="pane-header">
+            <b>Bash</b> <span class="dim">(running)</span>
+            <button type="button" class="close" aria-label="Close pane" title="Close pane">×</button>
+          </div>
+          <div class="pane-body">
+            <pre id="bash"></pre>
+          </div>
+        </section>
+      </main>
+    </div>
+    <footer class="statusbar">
+      <span class="app-info"><span id="active-name" class="model-name"></span> <span class="dim">(running)</span></span>
+      <span class="mode">PANES</span>
+    </footer>
+
+    <dialog id="help" aria-labelledby="help-title">
+      <div class="help-body">
+        <h2 id="help-title">What's on this page</h2>
+        <dl>
+          <dt>The pod</dt>
+          <dd>BrowserPod runs a small Linux machine inside this tab, with Node.js, npm, git and bash. Your files live in /home/user and are kept between visits.</dd>
+          <dt class="model-name"></dt>
+          <dd>Little Coder, an AI coding agent. The model runs in this browser using your GPU, and the agent works inside the pod. Ask it to build something and it writes and runs the code there.</dd>
+          <dt>Bash</dt>
+          <dd>A shell in the same pod. It sees the same files as the agent, so you can look around and run commands while it works.</dd>
+          <dt>+ Add</dt>
+          <dd>Opens another terminal or another agent. Agents share one model, so they take turns when more than one is busy.</dd>
+          <dt>Ports</dt>
+          <dd>When a program in the pod starts a server, for example <code>npm run dev</code>, BrowserPod gives that port its own URL, called a portal. Each portal appears in the Ports box. Click one to open the app in a new tab. Addresses like localhost:3000 only work inside the pod, so use these links instead.</dd>
+          <dt>Panes</dt>
+          <dd>Drag the line between two panes to resize them. Click a name in the sidebar to jump to its pane. × closes a pane, but anything started in it keeps running in the pod.</dd>
+        </dl>
+        <div class="help-footer">
+          <a href="https://browserpod.io" target="_blank" rel="noopener">Powered by BrowserPod</a>
+          <form method="dialog"><button type="submit">Close</button></form>
+        </div>
+      </div>
+    </dialog>
+
+    <template id="pane-template">
+      <div class="divider" role="separator" aria-orientation="horizontal"></div>
+      <section class="pane">
+        <div class="pane-header">
+          <b class="pane-name"></b> <span class="dim">(running)</span>
+          <button type="button" class="close" aria-label="Close pane" title="Close pane">×</button>
+        </div>
+        <div class="pane-body">
+          <pre></pre>
+        </div>
+      </section>
+    </template>
+    <template id="tab-template">
+      <li class="tab">
+        <span class="rail"></span><span class="mark">▏</span>
+        <span class="tab-name"></span>
+      </li>
+    </template>
+
+    <div id="setup" hidden>
       <form id="setup-form" class="setup">
         <pre class="logo" aria-hidden="true">⠀⠀⠀⠀⠀⠀⠀⢀⣠⣴⠾⠷⣦⡀⠀⠀⠀⠀⠀⠀⠀⠀
 ⠀⠀⠀⠀⣀⣤⡾⠟⠋⠁⠀⠀⢸⣧⠸⠷⣦⡀⠀⠀⠀⠀
@@ -80,23 +187,7 @@
         </footer>
       </form>
     </div>
-    <div id="loading" class="overlay loading" role="status" hidden>
-      <pre class="logo" aria-hidden="true">⠀⠀⠀⠀⠀⠀⠀⢀⣠⣴⠾⠷⣦⡀⠀⠀⠀⠀⠀⠀⠀⠀
-⠀⠀⠀⠀⣀⣤⡾⠟⠋⠁⠀⠀⢸⣧⠸⠷⣦⡀⠀⠀⠀⠀
-⠀⣠⣴⠿⠛⠁⠀⠀⣀⣤⣶⠟⢸⣿⠀⠀⢸⣿⢰⣦⣄⠀
-⢰⡿⠁⠀⠀⣠⣴⡾⠛⠉⠀⠀⢸⣿⢰⡾⢸⣿⠀⠈⢻⡇
-⢺⡇⠀⠀⣼⡟⠁⠀⠀⢀⣠⣶⢸⣿⠀⠀⢸⣿⠀⠀⢸⡇
-⢸⡇⠀⠀⣿⡇⠀⠀⣼⡟⠉⠀⢸⣿⠀⠀⢸⣿⠀⠀⢸⡇
-⢸⡇⠀⠀⣿⡇⠀⠀⣿⡇⠀⣀⣼⡟⠀⠀⢸⣿⠀⠀⢸⡇
-⣾⡇⠀⠀⣿⡇⠀⠀⣩⣴⡾⠛⠉⠀⠀⠀⣸⡿⠀⠀⢸⡇
-⠸⣧⡀⠀⠙⠿⠶⠿⣋⡅⠀⠀⢀⣠⣶⠿⠛⠁⠀⢀⣾⠇
-⠀⠙⠿⣶⣄⡀⠀⠀⠙⢷⣶⡾⠟⠋⠀⠀⢀⣠⣶⠿⠋⠀
-⠀⠀⠀⠀⠙⠻⢷⣦⣀⠀⠀⠀⠀⣀⣴⡾⠟⠉⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠈⠛⠿⠶⠶⠿⠛⠁⠀⠀⠀⠀⠀⠀⠀</pre>
-      <h1>PiPod</h1>
-      <p id="load-pod">Starting the pod</p>
-      <p id="load-model">Starting the model</p>
-    </div>
+
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>
