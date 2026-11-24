@@ -51,7 +51,11 @@ export function sharedPrefix(a, b) {
 }
 
 // No built-in model cache
+const size = (n) => n >= 1e9 ? `${(n / 1e9).toFixed(1)} GB` : `${Math.round(n / 1e6)} MB`;
+
 async function loadModel(url, onStatus) {
+  const name = url.split("/").pop();
+  onStatus?.(`Checking browser cache for ${name}`);
   const cache = await caches.open(CACHE_NAME);
   let res = await cache.match(url);
   if (!res) {
@@ -60,11 +64,12 @@ async function loadModel(url, onStatus) {
     const total = Number(net.headers.get("content-length")) || 0;
     let loaded = 0;
     let shown = -1;
+    onStatus?.(`Downloading ${name} from Hugging Face`);
     const counted = net.body.pipeThrough(new TransformStream({
       transform(chunk, controller) {
         loaded += chunk.byteLength;
         const pct = total ? Math.floor((loaded * 100) / total) : -1;
-        if (pct !== shown) onStatus?.(`Downloading model ${(shown = pct)}%`);
+        if (total && pct !== shown) onStatus?.(`Downloading ${name} from Hugging Face: ${(shown = pct)}% (${size(loaded)} of ${size(total)})`);
         controller.enqueue(chunk);
       },
     }));
@@ -77,9 +82,8 @@ async function loadModel(url, onStatus) {
 export async function createEngine({ model:config, context, onStatus }) {
   if (!navigator.gpu) throw new Error("WebGPU is not available in this browser");
 
-  onStatus?.("Checking model cache");
   const blob = await loadModel(config.url, onStatus);
-  onStatus?.("Loading model");
+  onStatus?.("Creating LiteRT-LM engine on WebGPU");
   const engine = await Engine.create({ model:blob, mainExecutorSettings:{ maxNumTokens:context } });
 
   let previous = [];

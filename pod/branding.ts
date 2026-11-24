@@ -40,7 +40,7 @@ function buildHeader(theme: Theme): string[] {
   ].join(sep);
   return [
     "",
-    ...LOGO.map((line) => theme.fg("accent", line)),
+    ...LOGO.map((line) => `\x1b[97m${line}\x1b[39m`),
     "",
     theme.bold(theme.fg("accent", "PiPod")),
     ...describe().map((line) => theme.fg("muted", line)),

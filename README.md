@@ -58,7 +58,7 @@ That makes PiPod a free, no-sign-up way to try an agentic coding workflow, exper
 
 - **Free, with no sign-up.** No account, no API key and no credit card.
 - **Runs locally.** Inference happens on your GPU through WebGPU. Your prompts and code are never sent to an AI service.
-- **Open-weight models.** Gemma 4 E4B, Gemma 4 E2B and Qwen2.5 Coder 1.5B, plus two legacy options. All are Apache 2.0 licensed.
+- **Open-weight models.** Gemma 4 E4B and Gemma 4 E2B, plus two legacy options. All are Apache 2.0 licensed.
 - **A real terminal agent.** The agent can read, write and edit files, run bash commands, install npm packages and start servers.
 - **A Linux-like sandbox in the tab.** bash, git, Node.js 22, npm, pnpm, ripgrep, curl and the usual command-line tools.
 - **Panes.** An agent pane, a plain bash pane on the same filesystem, and a Ports list. You can add more terminals or agents with "+ Add".
@@ -108,7 +108,6 @@ All models are open-weight, Apache 2.0 licensed and downloaded from Hugging Face
 |---|---|---|---|---|---|
 | Gemma 4 E4B | 3.0 GB | LiteRT-LM | 32,768 tokens | Yes | Default. The most capable option. |
 | Gemma 4 E2B | 2.0 GB | LiteRT-LM | 32,768 tokens | Yes | Smaller and faster. |
-| Qwen2.5 Coder 1.5B | 1.1 GB | LiteRT-LM | 4,096 tokens | No | Unstable. Its LiteRT build only holds a short conversation, and it may fail at tool calls. |
 | Qwen3.5 4B | 2.7 GB | Sipp (legacy) | 32,768 tokens | No | Under Advanced. |
 | Tiny-Agent 0.5B | 0.4 GB | Sipp (legacy) | 32,768 tokens | No | Under Advanced. Very small, for devices with limited resources. |
 
@@ -118,7 +117,6 @@ Model sources:
 
 - [litert-community/gemma-4-E4B-it-litert-lm](https://huggingface.co/litert-community/gemma-4-E4B-it-litert-lm)
 - [litert-community/gemma-4-E2B-it-litert-lm](https://huggingface.co/litert-community/gemma-4-E2B-it-litert-lm)
-- [litert-community/Qwen2.5-Coder-1.5B-Instruct](https://huggingface.co/litert-community/Qwen2.5-Coder-1.5B-Instruct)
 - [unsloth/Qwen3.5-4B-GGUF](https://huggingface.co/unsloth/Qwen3.5-4B-GGUF)
 - [driaforall/Tiny-Agent-a-0.5B](https://huggingface.co/driaforall/Tiny-Agent-a-0.5B)
 
@@ -196,7 +194,6 @@ PiPod runs small models on consumer hardware. Expect the following:
 - **Your browser may freeze briefly** while the model is working, especially on less powerful devices or with larger models.
 - **Some npm packages need care.** Packages with native binaries don't run in BrowserPod. The agent is told how to swap common ones, such as esbuild and rollup, for their WebAssembly builds.
 - **Python is limited.** `python3` runs with its standard library only. There is no pip.
-- **Qwen2.5 Coder is unstable** because its LiteRT build is limited to 4,096 tokens.
 - **Not built for offline use.** The sandbox runtime loads over the network.
 
 ## Licence

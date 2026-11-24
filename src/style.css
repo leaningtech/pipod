@@ -405,8 +405,102 @@ body {
 
 .loading h1 {
   margin-bottom: 0.5rem;
-  color: var(--accent);
-  font-size: 1.25rem;
+  color: var(--text);
+  font-size: 1.5rem;
+}
+
+.loading .logo {
+  flex: none;
+  padding: 0;
+  background: none;
+  color: #fff;
+  font-family: Menlo, Consolas, "DejaVu Sans Mono", monospace;
+  font-size: 10px;
+  line-height: 1.2;
+}
+
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: min(28rem, 100%);
+  list-style: none;
+  font-size: 1rem;
+  text-align: left;
+}
+
+.step {
+  display: grid;
+  grid-template-columns: 1.5rem 1fr;
+  row-gap: 0.5rem;
+  align-items: center;
+  color: var(--text);
+}
+
+.step::before {
+  content: "";
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+}
+
+.step.done::before {
+  content: "✓";
+  border: none;
+  color: var(--on);
+  font-weight: bold;
+}
+
+.step.failed::before {
+  content: "✕";
+  border: none;
+  color: #ff8a80;
+  font-weight: bold;
+}
+
+.bar {
+  grid-column: 2;
+  height: 6px;
+  overflow: hidden;
+  border-radius: 3px;
+  background: var(--surface-alt);
+}
+
+#load-bar {
+  width: 30%;
+  height: 100%;
+  border-radius: 3px;
+  background: var(--accent);
+}
+
+.step.done .bar,
+.step.failed .bar {
+  display: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .step:not(.done, .failed)::before {
+    animation: spin 0.8s linear infinite;
+  }
+
+  #load-bar[style*="width"] {
+    transition: width 0.3s;
+  }
+
+  #load-bar:not([style*="width"]) {
+    animation: slide 1.4s ease-in-out infinite;
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes slide {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(340%); }
 }
 
 /* Overlays use a light touch of the BrowserPod design kit: its dark tokens, radii and Commit Mono. */
@@ -471,7 +565,7 @@ body {
   padding: 0;
   background: none;
   align-self: center;
-  color: var(--bp-blue-hi);
+  color: #fff;
   font-family: Menlo, Consolas, "DejaVu Sans Mono", monospace;
   font-size: 14px;
   line-height: 1.2;
@@ -480,7 +574,7 @@ body {
 .setup {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.5rem;
   width: 100%;
   max-width: 68rem;
   margin: auto;
@@ -489,48 +583,65 @@ body {
 .cols {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 1.25rem;
-}
-
-.left,
-.controls {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  min-width: 0;
+  gap: 1.5rem;
 }
 
 @media (min-width: 56rem) {
   .cols {
-    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
-    align-items: start;
-    gap: 2rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 .intro {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 1rem;
-}
-
-.intro .logo {
-  font-size: 10px;
+  gap: 1.5rem;
+  padding: 2.5rem 0 1rem;
+  text-align: center;
 }
 
 .lead {
-  margin-top: 0.25rem;
+  max-width: 36rem;
+  margin-top: 0.5rem;
   color: var(--bp-text-2);
   font-size: 1rem;
 }
 
-/* Demo slot, 16:9. Swap public/demo.gif; a missing file shows the placeholder. */
+/* Sized to the demo GIF */
+.demo-body {
+  display: grid;
+  gap: 1.5rem;
+}
+
+@media (min-width: 56rem) {
+  .demo-body {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+    align-items: center;
+  }
+}
+
+.demo-text dt {
+  color: var(--bp-text);
+  font-family: var(--bp-mono);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.demo-text dd {
+  margin-bottom: 0.75rem;
+  color: var(--bp-text-2);
+}
+
+.demo-text code {
+  font-family: var(--bp-mono);
+  font-size: 0.85em;
+}
+
 .demo {
   position: relative;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 1144 / 676;
   overflow: hidden;
-  border: 1px solid var(--bp-line-2);
-  border-radius: var(--bp-r-card);
   background: var(--bp-raised);
 }
 
@@ -543,7 +654,7 @@ body {
 }
 
 .demo img {
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .demo-placeholder {
@@ -699,20 +810,6 @@ body {
 }
 
 /* The explanation sits below Start, full width of the block */
-.about {
-  padding: 0.75rem 1rem;
-  border: 1px solid var(--bp-line);
-  border-radius: var(--bp-r-card);
-}
-
-.about summary {
-  font-family: var(--bp-mono);
-}
-
-.about section {
-  margin-top: 0.5rem;
-}
-
 .about h2 {
   margin-bottom: 0.1rem;
   color: var(--bp-text);
@@ -755,6 +852,10 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--bp-line-2);
+  border-radius: var(--bp-r-card);
+  background: var(--bp-raised);
 }
 
 .setup button {
@@ -777,10 +878,6 @@ body {
   .start {
     flex-direction: column-reverse;
     align-items: stretch;
-  }
-
-  .intro .logo {
-    font-size: 7px;
   }
 }
 
