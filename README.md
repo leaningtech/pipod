@@ -4,8 +4,8 @@
 
 ### A coding agent that runs entirely in your browser tab.
 
-The model runs on your GPU. The agent and its Linux sandbox run right next to it.<br>
-No install, no sign-up, no API key, no server.
+Model, agent and Linux sandbox are all running in the browser tab.<br>
+No install, sign-up or metering. You control your data and your compute.
 
 **[▶ Try it at pipod.browserpod.io](https://pipod.browserpod.io)**
 
@@ -14,8 +14,6 @@ No install, no sign-up, no API key, no server.
 [![LiteRT-LM on WebGPU](https://img.shields.io/badge/LiteRT--LM-WebGPU-34a853?style=flat-square)](https://github.com/google-ai-edge/LiteRT-LM)
 [![Gemma 4](https://img.shields.io/badge/model-Gemma%204-1a73e8?style=flat-square)](https://huggingface.co/litert-community/gemma-4-E4B-it-litert-lm)
 [![Licence: Apache 2.0](https://img.shields.io/badge/licence-Apache%202.0-blue?style=flat-square)](LICENSE)
-[![GitHub stars](https://img.shields.io/github/stars/leaningtech/pipod?style=flat-square)](https://github.com/leaningtech/pipod/stargazers)
-
 <img src="public/demo.gif" alt="PiPod building and running an app in a browser tab" width="800">
 
 </div>
