@@ -14,6 +14,9 @@ node pod/patch-typebox.mjs $STAGE/lib/node_modules
 node pod/patch-pi-bash.mjs $STAGE/lib/node_modules
 cp pod/branding.ts $EXT/branding/index.ts
 rm -rf $EXT/hello
+# Don't nudge after Escape
+perl -0pi -e 's/if \(!message\) return;/if (!message || message.stopReason === "aborted") return;/' $EXT/quality-monitor/index.ts
+grep -q 'stopReason === "aborted"' $EXT/quality-monitor/index.ts
 # Windows-only native binaries
 rm -rf $STAGE/lib/node_modules/little-coder/node_modules/koffi/build
 COPYFILE_DISABLE=1 tar --no-mac-metadata --no-xattrs -czf little-coder.tgz -C $STAGE bin lib

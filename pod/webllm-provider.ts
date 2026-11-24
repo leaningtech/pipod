@@ -114,7 +114,7 @@ export default function (pi: any) {
       {
         id: MODEL_ID,
         name: `${MODEL_ID} (in browser)`,
-        reasoning: false,
+        reasoning: true,
         input: ["text"],
         contextWindow: CONTEXT,
         maxTokens: MAX_TOKENS,

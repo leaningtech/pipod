@@ -100,17 +100,20 @@ async function readFile(path) {
 async function installLittleCoder() {
   if (await readFile(MARKER) === BUILD_ID) return;
   loadPodEl.textContent = "Copying PiPod into the pod";
-  const tgz = `${HOME}/little-coder.tgz`;
-  const file = await pod.createFile(tgz, "binary");
-  for (const url of PART_URLS) {
+  const parts = await Promise.all(PART_URLS.map(async (url) => {
     const res = await fetch(url);
     if (!res.ok) throw new Error(`${url} returned ${res.status}`);
-    const data = await res.arrayBuffer();
-    for (let i = 0; i < data.byteLength; i += CHUNK) await file.write(data.slice(i, i + CHUNK));
-  }
+    return res.blob();
+  }));
+  // Gunzip in the page, not the pod
+  const gunzipped = new Blob(parts).stream().pipeThrough(new DecompressionStream("gzip"));
+  const data = await new Response(gunzipped).arrayBuffer();
+  const tar = `${HOME}/little-coder.tar`;
+  const file = await pod.createFile(tar, "binary");
+  for (let i = 0; i < data.byteLength; i += CHUNK) await file.write(data.slice(i, i + CHUNK));
   await file.close();
   loadPodEl.textContent = "Unpacking PiPod";
-  const unpack = `rm -rf ${NPM_PREFIX} && mkdir -p ${NPM_PREFIX} && tar xzf ${tgz} -C ${NPM_PREFIX} && rm ${tgz} && printf '%s' '${BUILD_ID}' > ${MARKER}`;
+  const unpack = `mkdir -p ${NPM_PREFIX} && tar xf ${tar} -C ${NPM_PREFIX} && rm ${tar} && printf '%s' '${BUILD_ID}' > ${MARKER}`;
   await pod.run("bash", ["-c", unpack], {terminal:terminal});
   if (await readFile(MARKER) !== BUILD_ID) throw new Error("unpacking did not finish");
 }
@@ -129,7 +132,7 @@ await writeFile(`${HOME}/little-coder.sh`, launcher);
 
 const installed = installLittleCoder()
   .then(() => { loadPodEl.textContent = "PiPod is ready"; return true; })
-  .catch((err) => { loadPodEl.textContent = `Setup failed: ${err.message}`; return false; });
+  .catch((err) => { console.error(err); loadPodEl.textContent = `Setup failed: ${err.message}`; return false; });
 
 const [engine, ready] = await Promise.all([enginePromise.catch(() => null), installed]);
 

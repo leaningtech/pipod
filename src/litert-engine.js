@@ -43,6 +43,13 @@ export function chunkText(chunk) {
   return text;
 }
 
+// Leading messages left unchanged
+export function sharedPrefix(a, b) {
+  let n = 0;
+  while (n < a.length && n < b.length && JSON.stringify(a[n]) === JSON.stringify(b[n])) n++;
+  return n;
+}
+
 // No built-in model cache
 async function loadModel(url, onStatus) {
   const cache = await caches.open(CACHE_NAME);
@@ -75,25 +82,47 @@ export async function createEngine({ model:config, context, onStatus }) {
   onStatus?.("Loading model");
   const engine = await Engine.create({ model:blob, mainExecutorSettings:{ maxNumTokens:context } });
 
+  let previous = [];
+
   async function generate(body, { onText, signal }) {
-    const { preface, last } = toLiteRtMessages(body.messages || []);
+    const messages = body.messages || [];
+    const kept = sharedPrefix(previous, messages);
+    const reusable = previous.length > 0 && kept === previous.length;
+    previous = messages;
+    const t0 = performance.now();
+    let tFirst = 0;
+
+    const { preface, last } = toLiteRtMessages(messages);
     const conversation = await engine.createConversation({
-      preface:{ messages:preface, tools:body.tools?.length ? body.tools : undefined },
+      preface:{
+        messages:preface,
+        tools:body.tools?.length ? body.tools : undefined,
+        extra_context:{ enable_thinking:!!body.reasoning_effort },
+      },
+      // Tool calls must fit schemas
+      enableConstrainedDecoding:true,
       sessionConfig:{
         maxOutputTokens:body.max_completion_tokens ?? body.max_tokens ?? 4096,
         samplerParams:{ type:SamplerType.TOP_P, ...config.sampling },
       },
     });
+    const tCreated = performance.now();
     const cancel = () => conversation.cancel();
     signal?.addEventListener("abort", cancel, { once:true });
     try {
       for await (const chunk of conversation.sendMessageStreaming(last)) {
         if (signal?.aborted) break;
+        tFirst ||= performance.now();
         const text = chunkText(chunk);
         if (text) onText(text);
       }
       if (signal?.aborted) throw new Error("Request cancelled");
       const tokens = await conversation.getTokenCount();
+      const ms = (t) => `${Math.round(t)}ms`;
+      console.log(
+        `[litert] ${tokens} tokens, ${messages.length} messages (${kept} unchanged, reusable: ${reusable}), ` +
+        `setup ${ms(tCreated - t0)}, prefill ${ms((tFirst || tCreated) - tCreated)}, total ${ms(performance.now() - t0)}`
+      );
       return {
         finishReason:"stop",
         usage:{ prompt_tokens:tokens, completion_tokens:0, total_tokens:tokens },
