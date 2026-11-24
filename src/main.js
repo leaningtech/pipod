@@ -1,10 +1,12 @@
 import { BrowserPod } from '@leaningtech/browserpod'
 import { ACTIVE_MODEL, MODELS } from './models.js'
 import { runBridge } from './bridge.js'
-import patchTypebox from '../pod/patch-typebox.mjs?raw'
-import patchPiBash from '../pod/patch-pi-bash.mjs?raw'
 import providerSource from '../pod/webllm-provider.ts?raw'
-import brandingSource from '../pod/branding.ts?raw'
+
+// Built by build-little-coder.sh
+const PART_URLS = Object.entries(import.meta.glob('../pod/little-coder.tgz.*', { query:'?url', import:'default', eager:true }))
+  .sort(([a], [b]) => a.localeCompare(b))
+  .map(([, url]) => url);
 
 const MODEL_ID = ACTIVE_MODEL;
 const CONTEXT = 32768;
@@ -13,8 +15,9 @@ const HOME = "/home/user";
 const BRIDGE_DIR = `${HOME}/bridge`;
 const EXTENSION = `${HOME}/webllm-provider/index.ts`;
 const NPM_PREFIX = `${HOME}/.npm-global`;
-const LC_EXTENSIONS = `${NPM_PREFIX}/lib/node_modules/little-coder/.pi/extensions`;
-const LITTLE_CODER_VERSION = "1.4.1";
+const MARKER = `${NPM_PREFIX}/.pipod-build`;
+const BUILD_ID = PART_URLS.join(" ");
+const CHUNK = 4 * 1024 * 1024;
 
 const statusEl = document.querySelector("#status");
 const loadingEl = document.querySelector("#loading");
@@ -79,15 +82,38 @@ const launcher = [
   ""
 ].join("\n");
 
-const setup = [
-  "#!/bin/bash",
-  "set -e",
-  `[ -x ${NPM_PREFIX}/bin/little-coder ] && exit 0`,
-  `npm install -g --prefix ${NPM_PREFIX} little-coder@${LITTLE_CODER_VERSION}`,
-  `node ${HOME}/patch-typebox.mjs ${NPM_PREFIX}/lib/node_modules`,
-  `node ${HOME}/patch-pi-bash.mjs ${NPM_PREFIX}/lib/node_modules`,
-  ""
-].join("\n");
+async function readFile(path) {
+  let file;
+  try {
+    file = await pod.openFile(path, "utf-8");
+  } catch {
+    return "";
+  }
+  try {
+    return await file.read(await file.getSize());
+  } finally {
+    await file.close();
+  }
+}
+
+// Copy in prebuilt little-coder
+async function installLittleCoder() {
+  if (await readFile(MARKER) === BUILD_ID) return;
+  loadPodEl.textContent = "Copying PiPod into the pod";
+  const tgz = `${HOME}/little-coder.tgz`;
+  const file = await pod.createFile(tgz, "binary");
+  for (const url of PART_URLS) {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`${url} returned ${res.status}`);
+    const data = await res.arrayBuffer();
+    for (let i = 0; i < data.byteLength; i += CHUNK) await file.write(data.slice(i, i + CHUNK));
+  }
+  await file.close();
+  loadPodEl.textContent = "Unpacking PiPod";
+  const unpack = `rm -rf ${NPM_PREFIX} && mkdir -p ${NPM_PREFIX} && tar xzf ${tgz} -C ${NPM_PREFIX} && rm ${tgz} && printf '%s' '${BUILD_ID}' > ${MARKER}`;
+  await pod.run("bash", ["-c", unpack], {terminal:terminal});
+  if (await readFile(MARKER) !== BUILD_ID) throw new Error("unpacking did not finish");
+}
 
 // Create a Terminal
 const terminal = await pod.createDefaultTerminal(document.querySelector("#console"));
@@ -98,25 +124,16 @@ await pod.run("bash", ["-c", `rm -rf ${BRIDGE_DIR}`], {terminal:terminal});
 // Copy helpers into the pod
 await pod.createDirectory(`${HOME}/webllm-provider`, {recursive:true});
 await pod.createDirectory(BRIDGE_DIR, {recursive:true});
-await writeFile(`${HOME}/patch-typebox.mjs`, patchTypebox);
-await writeFile(`${HOME}/patch-pi-bash.mjs`, patchPiBash);
 await writeFile(EXTENSION, providerSource);
 await writeFile(`${HOME}/little-coder.sh`, launcher);
-await writeFile(`${HOME}/setup.sh`, setup);
 
-// Install little-coder once
-loadPodEl.textContent = "Setting up little-coder";
-const setupDone = pod.run("bash", [`${HOME}/setup.sh`], {terminal:terminal})
-  .then(async () => {
-    // Swap in PiPod branding
-    await writeFile(`${LC_EXTENSIONS}/branding/index.ts`, brandingSource);
-    await pod.run("bash", ["-c", `rm -rf ${LC_EXTENSIONS}/hello`], {terminal:terminal});
-    loadPodEl.textContent = "PiPod is ready";
-  });
+const installed = installLittleCoder()
+  .then(() => { loadPodEl.textContent = "PiPod is ready"; return true; })
+  .catch((err) => { loadPodEl.textContent = `Setup failed: ${err.message}`; return false; });
 
-const [engine] = await Promise.all([enginePromise.catch(() => null), setupDone]);
+const [engine, ready] = await Promise.all([enginePromise.catch(() => null), installed]);
 
-if (engine) {
+if (engine && ready) {
   // Connect the pod to the model
   runBridge({
     engine,
