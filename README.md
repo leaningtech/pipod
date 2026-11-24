@@ -7,9 +7,9 @@
 The model runs on your GPU. The agent and its Linux sandbox run right next to it.<br>
 No install, no sign-up, no API key, no server.
 
-**[▶ Try it at pipod.leaningtech.com](https://pipod.leaningtech.com)**
+**[▶ Try it at pipod.browserpod.io](https://pipod.browserpod.io)**
 
-[![Live demo](https://img.shields.io/badge/demo-pipod.leaningtech.com-4a7dff?style=flat-square)](https://pipod.leaningtech.com)
+[![Live demo](https://img.shields.io/badge/demo-pipod.browserpod.io-4a7dff?style=flat-square)](https://pipod.browserpod.io)
 [![BrowserPod 4.1](https://img.shields.io/badge/BrowserPod-4.1-4a7dff?style=flat-square)](https://browserpod.io)
 [![LiteRT-LM on WebGPU](https://img.shields.io/badge/LiteRT--LM-WebGPU-34a853?style=flat-square)](https://github.com/google-ai-edge/LiteRT-LM)
 [![Gemma 4](https://img.shields.io/badge/model-Gemma%204-1a73e8?style=flat-square)](https://huggingface.co/litert-community/gemma-4-E4B-it-litert-lm)
