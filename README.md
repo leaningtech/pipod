@@ -165,6 +165,8 @@ What stays on your device:
 
 What does reach the network:
 
+- **Anonymous page analytics.** The page uses a self-hosted, cookieless [Plausible](https://plausible.io) instance for page views, outbound link clicks, and a count of which model and network mode were chosen. It never receives your prompts, code or files.
+
 - **Downloads.** The model comes from Hugging Face. The sandbox runtime and disk images come from BrowserPod's servers, which see your IP address and the page's origin. PiPod's own files come from wherever PiPod is hosted.
 - **Commands the agent runs.** `npm install`, `git clone`, `curl` and similar commands reach the internet like they would on any computer. In internet access mode they go through BrowserPod Edge.
 - **Preview links.** When you open a preview link, the traffic to your server goes through BrowserPod Edge.
