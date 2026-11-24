@@ -14,6 +14,8 @@ const API_KEY = import.meta.env.BP_APIKEY || import.meta.env.VITE_BP_APIKEY;
 
 // Nothing downloads before this
 const { modelId:MODEL_ID, keyed } = await chooseSetup({ hasKey:!!API_KEY });
+// Anonymous count of starts by model and network mode (Plausible, cookieless)
+window.plausible?.("Start", { props:{ model:MODEL_ID, network:keyed ? "internet" : "limited" } });
 const config = MODELS[MODEL_ID];
 
 const CONTEXT = config.context ?? 32768;

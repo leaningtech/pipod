@@ -6,8 +6,6 @@ PiPod gives you a terminal coding agent in a browser tab. You describe what you 
 
 There is nothing to install and no account to create. Open the page, pick a model, press Start.
 
-Powered by [BrowserPod](https://browserpod.io).
-
 ---
 
 ## Contents
@@ -16,12 +14,12 @@ Powered by [BrowserPod](https://browserpod.io).
 - [Features](#features)
 - [How it works](#how-it-works)
 - [Models](#models)
-- [With or without a BrowserPod key](#with-or-without-a-browserpod-key)
+- [Network access](#network-access)
 - [Requirements](#requirements)
 - [Using PiPod](#using-pipod)
 - [Privacy](#privacy)
 - [Limitations](#limitations)
-- [Open source and licences](#open-source-and-licences)
+- [Licence](#licence)
 - [What PiPod changes in Little Coder](#what-pipod-changes-in-little-coder)
 - [Self-hosting and development](#self-hosting-and-development)
 - [FAQ](#faq)
@@ -36,21 +34,22 @@ PiPod takes a different approach. Everything happens inside one browser tab:
 
 - **The model runs on your device.** Open-weight models are downloaded from Hugging Face once, saved in your browser's storage, and run on your GPU.
 - **The agent runs on your device.** PiPod uses [Little Coder](https://github.com/itayinbarr/little-coder), a version of the [Pi](https://github.com/earendil-works/pi/tree/main/packages/coding-agent) agent harness adapted for smaller models.
-- **The code runs on your device.** [BrowserPod](https://browserpod.io) provides a Linux-like sandbox with bash, Node.js and npm, compiled to WebAssembly and running in the tab.
+- **The code runs on your device.** A Linux-like sandbox with bash, Node.js and npm, compiled to WebAssembly, runs in the tab. It is built on [BrowserPod](https://browserpod.io).
 
 That makes PiPod a free, no-sign-up way to try an agentic coding workflow, experiment with local LLMs, or work on small projects without sending anything to an AI provider.
 
 ## Features
 
-- **Free, with no sign-up.** No account, no API key and no credit card to use a hosted PiPod.
+- **Free, with no sign-up.** No account, no API key and no credit card.
 - **Runs locally.** Inference happens on your GPU through WebGPU. Your prompts and code are never sent to an AI service.
 - **Open-weight models.** Gemma 4 E4B, Gemma 4 E2B and Qwen2.5 Coder 1.5B, plus two legacy options. All are Apache 2.0 licensed.
 - **A real terminal agent.** The agent can read, write and edit files, run bash commands, install npm packages and start servers.
 - **A Linux-like sandbox in the tab.** bash, git, Node.js 22, npm, pnpm, ripgrep, curl and the usual command-line tools.
-- **Live server links.** With a BrowserPod key, a server started in the sandbox gets a public portal URL. The agent is told the URL and it appears in the footer.
+- **Panes.** An agent pane, a plain bash pane on the same filesystem, and a Ports list. You can add more terminals or agents with "+ Add".
+- **Live server links.** With internet access enabled, a server started in the sandbox gets a public preview URL. The agent is told the URL and it appears in the Ports list and the footer.
 - **Thinking.** The Gemma 4 models show their reasoning before they answer.
 - **Your files persist.** The sandbox's disk is kept in your browser between visits.
-- **Open source.** PiPod's own code is Apache 2.0. See [Open source and licences](#open-source-and-licences) for the parts that are not.
+- **Open source.** PiPod is Apache 2.0.
 
 ## How it works
 
@@ -71,9 +70,9 @@ The model runs in the web page, not in the sandbox.
 
 Both runtimes are used unmodified. Models are downloaded from [Hugging Face](https://huggingface.co) the first time you choose them and saved in your browser's storage, so later visits load them without downloading again.
 
-### Execution: BrowserPod
+### Execution: an in-tab Linux sandbox
 
-[BrowserPod](https://browserpod.io) runs a Linux-like environment in the browser, compiled to WebAssembly. It provides a POSIX-style filesystem that persists in the browser, processes, bash, Node.js and npm. Little Coder runs inside it, and so does every command the agent runs. BrowserPod is used unmodified.
+Commands run in a Linux-like environment compiled to WebAssembly and running in the tab. It provides a POSIX-style filesystem that persists in the browser, processes, bash, Node.js and npm. The sandbox is built on [BrowserPod](https://browserpod.io). Little Coder runs inside it, and so does every command the agent runs.
 
 ### The bridge
 
@@ -107,32 +106,32 @@ Model sources:
 - [unsloth/Qwen3.5-4B-GGUF](https://huggingface.co/unsloth/Qwen3.5-4B-GGUF)
 - [driaforall/Tiny-Agent-a-0.5B](https://huggingface.co/driaforall/Tiny-Agent-a-0.5B)
 
-## Network access: with or without a BrowserPod key
+## Network access
 
-PiPod's setup screen offers two network modes, "Internet access" (with a key) and "Limited internet access" (without one).
+PiPod's setup screen offers two network modes.
 
-| | With key | Without key |
+| | Limited internet access | Internet access |
 |---|---|---|
-| Portal links for servers | Yes | No |
+| Preview links for servers | No | Yes |
 | npm install | Yes | Yes |
-| Other web access | Allowlisted hosts, including github.com and raw.githubusercontent.com | Only sites that allow requests from a web page (CORS) |
-| Needs a BrowserPod API key | Yes, built into the deployment | No |
+| Other web access | Only sites that allow requests from a web page (CORS) | Allowlisted hosts, including github.com and raw.githubusercontent.com |
+| Needs a key | No | Yes, set in the deployment |
 
-The key mode uses BrowserPod Edge, BrowserPod's optional networking service. The keyless mode uses BrowserPod's built-in fetch network, which reaches the internet through the page's own `fetch()`. The agent is told which mode it is in, so it knows whether servers will have a public URL.
+Limited mode uses the sandbox's built-in fetch network, which reaches the internet through the page's own `fetch()`. Internet access mode goes through BrowserPod Edge, the sandbox's optional networking service, and needs a key from the [BrowserPod console](https://console.browserpod.io). The agent is told which mode it is in, so it knows whether servers will have a public URL.
 
-If a deployment has no key, the "With key" option is disabled.
+If a deployment has no key, the "Internet access" option is disabled.
 
 ## Requirements
 
 - **A browser with WebGPU.** Recent versions of Chrome and Edge support it. Check [MDN's WebGPU page](https://developer.mozilla.org/en-US/docs/Web/API/WebGPU_API#browser_compatibility) for other browsers.
 - **Enough memory and GPU for the model.** Running a model takes a lot of processing power. On less powerful devices, or with larger models, the browser may stop responding for a while.
 - **Disk space for the model.** Between 0.4 GB and 3.0 GB, depending on the model.
-- **An internet connection on first use**, to download the model, the BrowserPod runtime and PiPod itself.
+- **An internet connection on first use**, to download the model, the sandbox runtime and PiPod itself.
 
 ## Using PiPod
 
 1. Open PiPod.
-2. Choose a model and a BrowserPod mode, then press Start. Start downloads the model into your browser's storage unless it is already there.
+2. Choose a model and a network mode, then press Start. Start downloads the model into your browser's storage unless it is already there.
 3. Wait for the loading screen. The first visit takes longest, because the model and Little Coder have to be downloaded and set up.
 4. Type a request and press Enter.
 
@@ -151,7 +150,9 @@ Example requests:
 - "Write a Node script that counts the words in every .md file in this folder"
 - "Explain what this file does" (after creating or cloning a project)
 
-Servers the agent starts run in the background. With a key, the latest portal URL appears in Pi's footer and the agent gives it to you.
+The window has an agent pane and a bash pane. The bash pane sees the same files as the agent, so you can look around and run commands while it works. "+ Add" opens more terminals or agents, and agents share one model, so they take turns.
+
+Servers the agent starts run in the background. With internet access enabled, the latest preview URL appears in the Ports list and Pi's footer, and the agent gives it to you.
 
 ## Privacy
 
@@ -164,9 +165,11 @@ What stays on your device:
 
 What does reach the network:
 
-- **Downloads.** The model comes from Hugging Face. BrowserPod's runtime and disk images come from BrowserPod's servers, which, according to the BrowserPod licence, see your IP address and the page's origin and receive no telemetry. PiPod's own files come from wherever PiPod is hosted.
-- **Commands the agent runs.** `npm install`, `git clone`, `curl` and similar commands reach the internet like they would on any computer. In key mode they go through BrowserPod Edge.
-- **Portals.** When you open a portal link, the traffic to your server goes through BrowserPod Edge.
+- **Anonymous page analytics.** The page uses a self-hosted, cookieless [Plausible](https://plausible.io) instance for page views, outbound link clicks, and a count of which model and network mode were chosen. It never receives your prompts, code or files.
+
+- **Downloads.** The model comes from Hugging Face. The sandbox runtime and disk images come from BrowserPod's servers, which see your IP address and the page's origin. PiPod's own files come from wherever PiPod is hosted.
+- **Commands the agent runs.** `npm install`, `git clone`, `curl` and similar commands reach the internet like they would on any computer. In internet access mode they go through BrowserPod Edge.
+- **Preview links.** When you open a preview link, the traffic to your server goes through BrowserPod Edge.
 
 ## Limitations
 
@@ -178,37 +181,19 @@ PiPod runs small models on consumer hardware. Expect the following:
 - **Some npm packages need care.** Packages with native binaries don't run in BrowserPod. The agent is told how to swap common ones, such as esbuild and rollup, for their WebAssembly builds.
 - **Python is limited.** `python3` runs with its standard library only. There is no pip.
 - **Qwen2.5 Coder is unstable** because its LiteRT build is limited to 4,096 tokens.
-- **Not built for offline use.** The BrowserPod runtime loads from BrowserPod's servers.
+- **Not built for offline use.** The sandbox runtime loads over the network.
 
-## Open source and licences
+## Licence
 
-**PiPod's own code is open source under the [Apache License 2.0](LICENSE).** That covers the web app, the provider extension, the build script and the patches in this repository.
+PiPod's own code is open source under the [Apache License 2.0](LICENSE). That covers the web app, the provider extension, the build script and the patches in this repository.
 
-PiPod also depends on software under other licences. One of them, BrowserPod, is not open source.
-
-| Component | What it does in PiPod | Licence | Open source |
-|---|---|---|---|
-| PiPod (this repository) | Web app, bridge, provider extension, patches | Apache 2.0 | Yes |
-| [Little Coder](https://github.com/itayinbarr/little-coder) | Agent harness, bundled and modified | Apache 2.0 | Yes |
-| [Pi coding agent](https://github.com/earendil-works/pi/tree/main/packages/coding-agent) | Harness core, bundled and modified | MIT | Yes |
-| [LiteRT-LM](https://github.com/google-ai-edge/LiteRT-LM) | Model runtime | Apache 2.0 | Yes |
-| [Sipp](https://www.sipp.sh/) | Legacy model runtime | Apache 2.0 | Yes |
-| [BrowserPod](https://browserpod.io) | Sandbox | BrowserPod Community Licence | No. Free to use, including commercially, with credit. |
-| Models (see [Models](#models)) | Inference | Apache 2.0 | Open-weight |
-
-Notes:
-
-- **BrowserPod** is free for any use under its Community Licence, as long as it is credited. Its runtime is loaded from BrowserPod's servers and is not copied, modified or redistributed by PiPod. Self-hosting or redistributing the BrowserPod runtime needs a separate licence from Leaning Technologies. See [browserpod.io](https://browserpod.io) for the licence terms.
-- **Little Coder and Pi** are bundled in `pod/little-coder.tgz.*` together with their npm dependencies. Each dependency keeps its own licence file inside the bundle.
-- **Models** are not distributed in this repository. They are downloaded from Hugging Face at runtime.
-
-The full list of third-party components is in [NOTICE](NOTICE).
+PiPod builds on other software, each under its own licence: [Little Coder](https://github.com/itayinbarr/little-coder) and the [Pi coding agent](https://github.com/earendil-works/pi/tree/main/packages/coding-agent) (bundled and modified in `pod/little-coder.tgz.*`, together with their npm dependencies), [LiteRT-LM](https://github.com/google-ai-edge/LiteRT-LM), [Sipp](https://www.sipp.sh/), and the models. The full list is in [NOTICE](NOTICE). Models are not distributed in this repository. They are downloaded from Hugging Face at runtime.
 
 ## What PiPod changes in Little Coder
 
 PiPod uses Little Coder 1.4.1 with these changes, applied at build time by `build-little-coder.sh`:
 
-- **Provider extension.** A new extension that connects Pi to the model in the page through the bridge, adds guidance about the sandbox to the system prompt, shows the latest portal link in the footer and tells the agent the URL.
+- **Provider extension.** A new extension that connects Pi to the model in the page through the bridge, adds guidance about the sandbox to the system prompt, shows the latest preview link in the footer and tells the agent the URL.
 - **Shared working directory.** A `cd` in one bash call now carries over to the next one, and the file tools resolve relative paths from the same directory.
 - **Stopping commands.** When you press `esc` or a command times out, the bash tool now returns control to the agent even if the command's process doesn't report that it has exited.
 - **No nudge after `esc`.** Little Coder's quality monitor no longer treats a reply you stopped as an empty reply.
@@ -253,8 +238,6 @@ Cross-Origin-Resource-Policy: cross-origin
 
 The bundled Little Coder is split into parts under 25 MB each, so it fits Cloudflare Pages' file size limit.
 
-Under the BrowserPod licence, a deployment must show a visible "Powered by BrowserPod" credit linked to https://browserpod.io where the pod runs.
-
 ### Rebuild the bundled Little Coder
 
 ```bash
@@ -275,15 +258,15 @@ PiPod is a free, no-sign-up coding agent in the same style as terminal agents li
 
 ### Do I need an account, an API key or a credit card?
 
-Not to use a hosted PiPod. If you self-host it, the keyless mode needs nothing. The key mode needs a BrowserPod API key, which you get from the BrowserPod console.
+No. Limited mode needs nothing. Internet access mode needs a key, which you get from the BrowserPod console. It is optional.
 
 ### Is PiPod really free?
 
-Yes. PiPod is open source under Apache 2.0, the models are free to download, and BrowserPod is free to use under its Community Licence. The model runs on your own hardware, so there is no per-token cost.
+Yes. PiPod is open source under Apache 2.0 and the models are free to download. The model runs on your own hardware, so there is no per-token cost.
 
 ### Does my code get sent anywhere?
 
-Your prompts and code are never sent to an AI service. The network only sees downloads, the commands the agent runs (such as `npm install`), and portal traffic. See [Privacy](#privacy).
+Your prompts and code are never sent to an AI service. The network only sees downloads, the commands the agent runs (such as `npm install`), and preview-link traffic. See [Privacy](#privacy).
 
 ### Which browsers work?
 
@@ -307,16 +290,12 @@ Python runs with its standard library only. Node.js frameworks can work, but pac
 
 ### Where are my files stored?
 
-In the sandbox's disk, which BrowserPod keeps in your browser's storage. They stay there between visits. Clearing the site's data in your browser deletes them.
+In the sandbox's disk, which is kept in your browser's storage. They stay there between visits. Clearing the site's data in your browser deletes them.
 
 ### Does it work offline?
 
-No. PiPod needs BrowserPod's runtime and disk images, which load from BrowserPod's servers.
+No. PiPod needs the sandbox runtime and disk images, which load over the network.
 
 ### Is PiPod open source?
 
-PiPod's own code is, under Apache 2.0. Little Coder, Pi, LiteRT-LM and Sipp are open source too. BrowserPod is not open source. It is free to use under its own Community Licence. See [Open source and licences](#open-source-and-licences).
-
----
-
-Powered by [BrowserPod](https://browserpod.io).
+Yes. PiPod's own code is under Apache 2.0. Third-party components and their licences are listed in [NOTICE](NOTICE). See [Licence](#licence).
